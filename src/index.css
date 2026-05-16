@@ -45,12 +45,36 @@ body {
   flex-direction: column;
   gap: 1.5rem;
   z-index: 100;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+  padding: 2rem 1rem;
+}
+
+.sidebar.collapsed h2, 
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .user-info {
+  display: none;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 1rem 0;
 }
 
 .main-content {
   margin-left: 260px;
   padding: 2rem;
   min-height: 100vh;
+  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: 80px;
 }
 
 .nav-item {

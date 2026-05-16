@@ -96,9 +96,38 @@ const GarmentsView = () => {
                   height: '100%', 
                   objectFit: 'cover',
                   transition: 'transform 0.5s ease',
-                  transform: hoveredGarment === garment.id ? 'scale(1.2)' : 'scale(1)'
+                  transform: hoveredGarment === garment.id ? 'scale(1.1)' : 'scale(1)'
                 }}
               />
+
+              {/* Zoom Overlay Localizado */}
+              {hoveredGarment === garment.id && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '200px',
+                  height: '200px',
+                  zIndex: 100,
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
+                  border: '2px solid var(--accent)',
+                  pointerEvents: 'none'
+                }} className="animate-fade">
+                   <img 
+                      src={garment.image} 
+                      alt="Zoom"
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover', 
+                        transform: 'scale(3)' 
+                      }}
+                   />
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
@@ -206,24 +235,10 @@ const GarmentsView = () => {
         </div>
       )}
 
-      {/* Zoom Overlay */}
-      {hoveredGarment && (
-        <div style={{
-          position: 'fixed', top: '20px', right: '20px', width: '350px', height: '350px',
-          zIndex: 1000, borderRadius: '20px', overflow: 'hidden',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.8)', border: '2px solid var(--accent)',
-          pointerEvents: 'none'
-        }} className="animate-fade">
-           <img 
-              src={garments.find(g => g.id === hoveredGarment)?.image} 
-              alt="Zoom"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(2.5)' }}
-           />
-        </div>
-      )}
     </div>
   );
 };
 
 export default GarmentsView;
+
 

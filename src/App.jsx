@@ -32,6 +32,7 @@ function App() {
     const saved = localStorage.getItem('lanera_session');
     return saved ? JSON.parse(saved) : null;
   });
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const { orders, setOrders } = useAppData();
 
@@ -78,56 +79,70 @@ function App() {
 
   return (
     <div className="app-container">
-      <nav className="sidebar glass-panel">
-        <h2 style={{ color: 'var(--accent)', marginBottom: '2rem', fontWeight: '800' }}>LANERAPRO</h2>
+      <nav className={`sidebar glass-panel ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+          <h2 style={{ color: 'var(--accent)', margin: 0, fontWeight: '800' }}>LANERAPRO</h2>
+          <button 
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            style={{ 
+              background: 'var(--accent-soft)', border: 'none', color: 'var(--accent)', 
+              borderRadius: '8px', cursor: 'pointer', padding: '0.5rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {isSidebarCollapsed ? <polyline points="9 18 15 12 9 6" /> : <polyline points="15 18 9 12 15 6" />}
+            </svg>
+          </button>
+        </div>
         
         <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-          <Icons.Dashboard /> Dashboard
+          <Icons.Dashboard /> <span className="nav-text">Dashboard</span>
         </div>
         
         <div className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-          <Icons.Orders /> {currentUser.role === 'admin' ? 'Pedidos B2B' : 'Mis Tareas'}
+          <Icons.Orders /> <span className="nav-text">{currentUser.role === 'admin' ? 'Pedidos B2B' : 'Mis Tareas'}</span>
         </div>
 
         {currentUser.role === 'admin' && (
           <div className={`nav-item ${activeTab === 'finances' ? 'active' : ''}`} onClick={() => setActiveTab('finances')}>
-            <Icons.Dollar /> Finanzas
+            <Icons.Dollar /> <span className="nav-text">Finanzas</span>
           </div>
         )}
         
         {currentUser.role === 'admin' && (
           <>
             <div className={`nav-item ${activeTab === 'importers' ? 'active' : ''}`} onClick={() => setActiveTab('importers')}>
-              <Icons.Users /> Importadoras
+              <Icons.Users /> <span className="nav-text">Importadoras</span>
             </div>
             <div className={`nav-item ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
-              <Icons.Users /> Empleados
+              <Icons.Users /> <span className="nav-text">Empleados</span>
             </div>
           </>
         )}
 
         <div className={`nav-item ${activeTab === 'garments' ? 'active' : ''}`} onClick={() => setActiveTab('garments')}>
-          <Icons.Package /> Prendas
+          <Icons.Package /> <span className="nav-text">Prendas</span>
         </div>
 
         {currentUser.role === 'admin' && (
           <div className={`nav-item ${activeTab === 'security' ? 'active' : ''}`} onClick={() => setActiveTab('security')}>
-            <Icons.Camera /> Cámaras
+            <Icons.Camera /> <span className="nav-text">Cámaras</span>
           </div>
         )}
 
         <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid var(--glass-border)' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div className="user-info" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#27ae60' }}></div>
             {currentUser.name} ({currentUser.role})
           </div>
           <button className="nav-item" style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer' }} onClick={handleLogout}>
-            <Icons.Logout /> Cerrar Sesión
+            <Icons.Logout /> <span className="nav-text">Cerrar Sesión</span>
           </button>
         </div>
       </nav>
 
-      <main className="main-content">
+      <main className={`main-content ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {toast && (
           <div className="animate-fade" style={{
             position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--accent)',
