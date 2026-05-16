@@ -22,6 +22,7 @@ const GarmentsView = () => {
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedGarment, setSelectedGarment] = useState(null);
   const [newGarment, setNewGarment] = useState({
     name: '',
     image: '',
@@ -54,6 +55,17 @@ const GarmentsView = () => {
     localStorage.setItem('lanera_garments', JSON.stringify(updatedGarments));
     setIsModalOpen(false);
     setNewGarment({ name: '', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '' });
+  };
+
+  const handleDownload = (garment) => {
+    const content = `Heng Qiang Program: ${garment.programFile}\nDesign: ${garment.name}\nTechnical Notes:\nVueltas: ${garment.notes.vueltas}\nTension: ${garment.notes.tension}\nHilo: ${garment.notes.hilo}\nAguja: ${garment.notes.aguja}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = garment.programFile;
+    a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -151,12 +163,58 @@ const GarmentsView = () => {
             </div>
 
             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-              <button style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontSize: '0.8rem', fontWeight: '600' }}>Ver Ficha</button>
-              <button style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', background: 'var(--accent)', border: 'none', color: 'white', fontSize: '0.8rem', fontWeight: '600' }}>Descargar {garment.programFile.split('.').pop().toUpperCase()}</button>
+              <button 
+                onClick={() => setSelectedGarment(garment)}
+                style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer' }}
+              >
+                Ver Ficha
+              </button>
+              <button 
+                onClick={() => handleDownload(garment)}
+                style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', background: 'var(--accent)', border: 'none', color: 'white', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer' }}
+              >
+                Descargar {garment.programFile.split('.').pop().toUpperCase()}
+              </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Modal Detalle (Ficha Técnica) */}
+      {selectedGarment && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 4000, backdropFilter: 'blur(10px)'
+        }}>
+          <div className="glass-panel" style={{ width: '800px', maxWidth: '90%', display: 'flex', overflow: 'hidden' }}>
+            <div style={{ flex: 1, background: '#000' }}>
+              <img src={selectedGarment.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Large preview" />
+            </div>
+            <div style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column' }}>
+              <h2 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>Ficha Técnica: {selectedGarment.name}</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Archivo: {selectedGarment.programFile}</p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', flex: 1 }}>
+                <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                   <strong>Especificaciones de Máquina:</strong>
+                   <ul style={{ marginTop: '1rem', listStyle: 'none', padding: 0 }}>
+                      <li>⚡ Tensión: {selectedGarment.notes.tension}</li>
+                      <li>🔄 Vueltas: {selectedGarment.notes.vueltas}</li>
+                      <li>🧶 Hilo: {selectedGarment.notes.hilo}</li>
+                      <li>📍 Aguja/Galga: {selectedGarment.notes.aguja}</li>
+                   </ul>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                <button className="btn-primary" style={{ flex: 1 }} onClick={() => handleDownload(selectedGarment)}>Descargar Archivo</button>
+                <button className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setSelectedGarment(null)}>Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal para Agregar */}
       {isModalOpen && (
