@@ -9,6 +9,8 @@ import SecurityView from './views/SecurityView';
 import LoginView from './views/LoginView';
 import FinancesView from './views/FinancesView';
 import GarmentsView from './views/GarmentsView';
+import ImportersView from './views/ImportersView';
+
 
 
 // Hooks (Controller)
@@ -68,7 +70,8 @@ function App() {
       case 'dashboard': return <DashboardView user={currentUser} />;
       case 'orders': return <OrdersView user={currentUser} orders={orders} setOrders={updateOrders} />;
       case 'finances': return <FinancesView />;
-      case 'importers': return <div className="animate-fade"><h1>Importadoras</h1></div>;
+      case 'importers': return <ImportersView />;
+
       case 'employees': return <EmployeesView user={currentUser} />;
       case 'garments': return <GarmentsView />;
 
