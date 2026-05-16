@@ -10,6 +10,7 @@ const SecurityView = () => {
 
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [activeRecording, setActiveRecording] = useState(null);
+  const [editingCamera, setEditingCamera] = useState(null);
   const [isAddingCamera, setIsAddingCamera] = useState(false);
   const [newCameraData, setNewCameraData] = useState({ name: '' });
 
