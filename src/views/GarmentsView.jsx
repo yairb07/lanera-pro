@@ -1,40 +1,65 @@
 import React, { useState } from 'react';
 
 const GarmentsView = () => {
-  const [garments, setGarments] = useState([
-    {
-      id: 1,
-      name: "Suéter Cuello en V - Colección Invierno",
-      image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1072&auto=format&fit=crop", // Placeholder or generated image
-      programFile: "sueter_v_v1.hcd",
-      notes: {
-        vueltas: 450,
-        tension: "7.2",
-        hilo: "Lana Merino 2/28",
-        aguja: "12G"
+  const [garments, setGarments] = useState(() => {
+    const saved = localStorage.getItem('lanera_garments');
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 1,
+        name: "Suéter Cuello en V - Colección Invierno",
+        image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1072&auto=format&fit=crop",
+        programFile: "sueter_v_v1.hcd",
+        notes: { vueltas: 450, tension: "7.2", hilo: "Lana Merino 2/28", aguja: "12G" }
+      },
+      {
+        id: 2,
+        name: "Cardigan Trenzado - Mujer",
+        image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=1170&auto=format&fit=crop",
+        programFile: "cardigan_trenza.hcd",
+        notes: { vueltas: 680, tension: "6.5", hilo: "Algodón Peinado", aguja: "10G" }
       }
-    },
-    {
-      id: 2,
-      name: "Cardigan Trenzado - Mujer",
-      image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=1170&auto=format&fit=crop",
-      programFile: "cardigan_trenza.hcd",
-      notes: {
-        vueltas: 680,
-        tension: "6.5",
-        hilo: "Algodón Peinado",
-        aguja: "10G"
-      }
-    }
-  ]);
+    ];
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newGarment, setNewGarment] = useState({
+    name: '',
+    image: '',
+    vueltas: '',
+    tension: '',
+    hilo: '',
+    aguja: ''
+  });
 
   const [hoveredGarment, setHoveredGarment] = useState(null);
+
+  const handleAddGarment = (e) => {
+    e.preventDefault();
+    const garmentToAdd = {
+      id: Date.now(),
+      name: newGarment.name,
+      image: newGarment.image || "https://images.unsplash.com/photo-1434031219129-14e5c876f628?q=80&w=1170&auto=format&fit=crop",
+      programFile: "nuevo_archivo.hcd",
+      notes: {
+        vueltas: newGarment.vueltas,
+        tension: newGarment.tension,
+        hilo: newGarment.hilo,
+        aguja: newGarment.aguja
+      }
+    };
+
+    const updatedGarments = [...garments, garmentToAdd];
+    setGarments(updatedGarments);
+    localStorage.setItem('lanera_garments', JSON.stringify(updatedGarments));
+    setIsModalOpen(false);
+    setNewGarment({ name: '', image: '', vueltas: '', tension: '', hilo: '', aguja: '' });
+  };
 
   return (
     <div className="animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1>Catálogo de Prendas & Diseños</h1>
-        <button className="btn-primary">+ Nuevo Diseño</button>
+        <button className="btn-primary" onClick={() => setIsModalOpen(true)}>+ Nuevo Diseño</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
@@ -70,24 +95,6 @@ const GarmentsView = () => {
                   transform: hoveredGarment === garment.id ? 'scale(1.2)' : 'scale(1)'
                 }}
               />
-              {hoveredGarment === garment.id && (
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'rgba(0,0,0,0.4)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '0.9rem'
-                }}>
-                  Vista Ampliada
-                </div>
-              )}
             </div>
 
             <h3 style={{ marginBottom: '1rem', color: 'var(--accent)' }}>{garment.name}</h3>
@@ -108,56 +115,72 @@ const GarmentsView = () => {
             </div>
 
             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-              <button style={{ 
-                flex: 1, 
-                padding: '0.5rem', 
-                borderRadius: '6px', 
-                border: '1px solid var(--accent)',
-                background: 'transparent',
-                color: 'var(--accent)',
-                fontSize: '0.8rem',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}>
-                Ver Ficha
-              </button>
-              <button style={{ 
-                flex: 1, 
-                padding: '0.5rem', 
-                borderRadius: '6px', 
-                background: 'var(--accent)',
-                border: 'none',
-                color: 'white',
-                fontSize: '0.8rem',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}>
-                Descargar .HCD
-              </button>
+              <button style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontSize: '0.8rem', fontWeight: '600' }}>Ver Ficha</button>
+              <button style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', background: 'var(--accent)', border: 'none', color: 'white', fontSize: '0.8rem', fontWeight: '600' }}>Descargar .HCD</button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Zoom Overlay (Optional for extreme detail) */}
+      {/* Modal para Agregar */}
+      {isModalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 3000, backdropFilter: 'blur(5px)'
+        }}>
+          <div className="glass-panel" style={{ width: '450px', padding: '2rem' }}>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Agregar Nuevo Diseño</h2>
+            <form onSubmit={handleAddGarment} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <input 
+                className="glass-input" placeholder="Nombre de la prenda" required
+                value={newGarment.name} onChange={e => setNewGarment({...newGarment, name: e.target.value})}
+              />
+              <input 
+                className="glass-input" placeholder="URL de la imagen (JPG/PNG)"
+                value={newGarment.image} onChange={e => setNewGarment({...newGarment, image: e.target.value})}
+              />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <input 
+                  className="glass-input" placeholder="Vueltas" type="number"
+                  value={newGarment.vueltas} onChange={e => setNewGarment({...newGarment, vueltas: e.target.value})}
+                />
+                <input 
+                  className="glass-input" placeholder="Tensión"
+                  value={newGarment.tension} onChange={e => setNewGarment({...newGarment, tension: e.target.value})}
+                />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <input 
+                  className="glass-input" placeholder="Tipo de Hilo"
+                  value={newGarment.hilo} onChange={e => setNewGarment({...newGarment, hilo: e.target.value})}
+                />
+                <input 
+                  className="glass-input" placeholder="Galga / Aguja"
+                  value={newGarment.aguja} onChange={e => setNewGarment({...newGarment, aguja: e.target.value})}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar Diseño</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Zoom Overlay */}
       {hoveredGarment && (
         <div style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          width: '300px',
-          height: '300px',
-          zIndex: 1000,
-          borderRadius: '20px',
-          overflow: 'hidden',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
-          border: '2px solid var(--accent)',
+          position: 'fixed', top: '20px', right: '20px', width: '350px', height: '350px',
+          zIndex: 1000, borderRadius: '20px', overflow: 'hidden',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.8)', border: '2px solid var(--accent)',
           pointerEvents: 'none'
         }} className="animate-fade">
            <img 
-              src={garments.find(g => g.id === hoveredGarment).image} 
+              src={garments.find(g => g.id === hoveredGarment)?.image} 
               alt="Zoom"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(2)' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(2.5)' }}
            />
         </div>
       )}
@@ -166,3 +189,4 @@ const GarmentsView = () => {
 };
 
 export default GarmentsView;
+
