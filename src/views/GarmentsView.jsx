@@ -25,6 +25,7 @@ const GarmentsView = () => {
   const [newGarment, setNewGarment] = useState({
     name: '',
     image: '',
+    programFile: '',
     vueltas: '',
     tension: '',
     hilo: '',
@@ -39,7 +40,7 @@ const GarmentsView = () => {
       id: Date.now(),
       name: newGarment.name,
       image: newGarment.image || "https://images.unsplash.com/photo-1434031219129-14e5c876f628?q=80&w=1170&auto=format&fit=crop",
-      programFile: "nuevo_archivo.hcd",
+      programFile: newGarment.programFile || "diseño_heng_qiang.hcd",
       notes: {
         vueltas: newGarment.vueltas,
         tension: newGarment.tension,
@@ -52,13 +53,16 @@ const GarmentsView = () => {
     setGarments(updatedGarments);
     localStorage.setItem('lanera_garments', JSON.stringify(updatedGarments));
     setIsModalOpen(false);
-    setNewGarment({ name: '', image: '', vueltas: '', tension: '', hilo: '', aguja: '' });
+    setNewGarment({ name: '', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '' });
   };
 
   return (
     <div className="animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Catálogo de Prendas & Diseños</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+           <h1 style={{ margin: 0 }}>Catálogo de Diseños HQPDS</h1>
+           <span style={{ fontSize: '0.8rem', background: 'var(--accent-soft)', color: 'var(--accent)', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>HENG QIANG</span>
+        </div>
         <button className="btn-primary" onClick={() => setIsModalOpen(true)}>+ Nuevo Diseño</button>
       </div>
 
@@ -97,7 +101,10 @@ const GarmentsView = () => {
               />
             </div>
 
-            <h3 style={{ marginBottom: '1rem', color: 'var(--accent)' }}>{garment.name}</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+               <h3 style={{ margin: 0, color: 'var(--accent)', fontSize: '1.1rem' }}>{garment.name}</h3>
+               <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{garment.programFile}</span>
+            </div>
             
             <div style={{ 
               display: 'grid', 
@@ -116,7 +123,7 @@ const GarmentsView = () => {
 
             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
               <button style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontSize: '0.8rem', fontWeight: '600' }}>Ver Ficha</button>
-              <button style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', background: 'var(--accent)', border: 'none', color: 'white', fontSize: '0.8rem', fontWeight: '600' }}>Descargar .HCD</button>
+              <button style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', background: 'var(--accent)', border: 'none', color: 'white', fontSize: '0.8rem', fontWeight: '600' }}>Descargar {garment.programFile.split('.').pop().toUpperCase()}</button>
             </div>
           </div>
         ))}
@@ -130,16 +137,27 @@ const GarmentsView = () => {
           zIndex: 3000, backdropFilter: 'blur(5px)'
         }}>
           <div className="glass-panel" style={{ width: '450px', padding: '2rem' }}>
-            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Agregar Nuevo Diseño</h2>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Agregar Diseño Heng Qiang</h2>
             <form onSubmit={handleAddGarment} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <input 
-                className="glass-input" placeholder="Nombre de la prenda" required
+                className="glass-input" placeholder="Nombre del diseño" required
                 value={newGarment.name} onChange={e => setNewGarment({...newGarment, name: e.target.value})}
               />
+              
+              <div style={{ padding: '0.8rem', border: '1px dashed var(--glass-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>Programa HQPDS (.HCD, .PAT, .HQS)</label>
+                <input 
+                  type="text"
+                  className="glass-input" placeholder="Nombre del archivo (ej: sueter_v1.hcd)"
+                  value={newGarment.programFile} onChange={e => setNewGarment({...newGarment, programFile: e.target.value})}
+                />
+              </div>
+
               <input 
-                className="glass-input" placeholder="URL de la imagen (JPG/PNG)"
+                className="glass-input" placeholder="URL de Imagen de Previsualización"
                 value={newGarment.image} onChange={e => setNewGarment({...newGarment, image: e.target.value})}
               />
+              
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <input 
                   className="glass-input" placeholder="Vueltas" type="number"
@@ -162,7 +180,7 @@ const GarmentsView = () => {
               </div>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                 <button type="button" className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar Diseño</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar en Sistema</button>
               </div>
             </form>
           </div>
