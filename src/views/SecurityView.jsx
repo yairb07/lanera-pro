@@ -10,7 +10,8 @@ const SecurityView = () => {
 
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [activeRecording, setActiveRecording] = useState(null);
-  const [editingCamera, setEditingCamera] = useState(null);
+  const [isAddingCamera, setIsAddingCamera] = useState(false);
+  const [newCameraData, setNewCameraData] = useState({ name: '' });
 
   const handleUpdateCamera = (e) => {
     e.preventDefault();
@@ -19,6 +20,19 @@ const SecurityView = () => {
     );
     setCameras(updated);
     setEditingCamera(null);
+  };
+
+  const handleAddCamera = (e) => {
+    e.preventDefault();
+    const camToAdd = {
+      id: Date.now(),
+      name: newCameraData.name,
+      status: 'Online',
+      lastEvent: 'Recién agregada'
+    };
+    setCameras([...cameras, camToAdd]);
+    setIsAddingCamera(false);
+    setNewCameraData({ name: '' });
   };
 
   return (
@@ -128,17 +142,41 @@ const SecurityView = () => {
                            <span>{cam.name}</span>
                            <div style={{ display: 'flex', gap: '0.5rem' }}>
                               <button onClick={() => setEditingCamera({ id: cam.id, newName: cam.name })} style={{ fontSize: '0.7rem', color: 'var(--accent)', background: 'transparent', border: '1px solid var(--accent)', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer' }}>Editar</button>
-                              <button style={{ fontSize: '0.7rem', color: '#e74c3c', background: 'transparent', border: '1px solid #e74c3c', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer' }}>Eliminar</button>
+                              <button 
+                                onClick={() => setCameras(cameras.filter(c => c.id !== cam.id))}
+                                style={{ fontSize: '0.7rem', color: '#e74c3c', background: 'transparent', border: '1px solid #e74c3c', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer' }}
+                              >
+                                Eliminar
+                              </button>
                            </div>
                         </>
                      )}
                   </div>
                ))}
-               <button className="btn-primary" style={{ marginTop: '1rem' }}>+ Agregar Nueva Cámara</button>
+
+               {isAddingCamera ? (
+                  <form onSubmit={handleAddCamera} style={{ marginTop: '1rem', padding: '1rem', border: '1px solid var(--accent)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                     <input 
+                        autoFocus
+                        className="glass-input" 
+                        placeholder="Nombre de la nueva cámara"
+                        value={newCameraData.name}
+                        onChange={e => setNewCameraData({ name: e.target.value })}
+                        required
+                     />
+                     <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button type="submit" className="btn-primary" style={{ flex: 1 }}>Confirmar</button>
+                        <button type="button" className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setIsAddingCamera(false)}>Cancelar</button>
+                     </div>
+                  </form>
+               ) : (
+                  <button className="btn-primary" style={{ marginTop: '1rem' }} onClick={() => setIsAddingCamera(true)}>+ Agregar Nueva Cámara</button>
+               )}
             </div>
           </div>
         </div>
       )}
+
       
       <div className="glass-panel" style={{ marginTop: '2rem', padding: '1.5rem' }}>
         <h3>Registro de Accesos</h3>
