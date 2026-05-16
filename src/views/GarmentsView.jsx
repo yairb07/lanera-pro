@@ -145,20 +145,39 @@ const GarmentsView = () => {
               />
               
               <div style={{ padding: '0.8rem', border: '1px dashed var(--glass-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>Programa HQPDS (.HCD, .PAT, .HQS)</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>Subir Programa HQPDS (.HCD, .PAT, .HQS)</label>
                 <input 
-                  type="text"
-                  className="glass-input" placeholder="Nombre del archivo (ej: sueter_v1.hcd)"
-                  value={newGarment.programFile} onChange={e => setNewGarment({...newGarment, programFile: e.target.value})}
+                  type="file"
+                  accept=".hcd,.pat,.hqs"
+                  style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
+                  onChange={e => {
+                    const file = e.target.files[0];
+                    if (file) setNewGarment({...newGarment, programFile: file.name});
+                  }}
                 />
               </div>
 
-              <input 
-                className="glass-input" placeholder="URL de Imagen de Previsualización"
-                value={newGarment.image} onChange={e => setNewGarment({...newGarment, image: e.target.value})}
-              />
+              <div style={{ padding: '0.8rem', border: '1px dashed var(--glass-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>Imagen de Previsualización (Zoom)</label>
+                <input 
+                  type="file"
+                  accept="image/*"
+                  style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
+                  onChange={e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setNewGarment({...newGarment, image: reader.result});
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+
                 <input 
                   className="glass-input" placeholder="Vueltas" type="number"
                   value={newGarment.vueltas} onChange={e => setNewGarment({...newGarment, vueltas: e.target.value})}
