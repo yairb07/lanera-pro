@@ -8,6 +8,8 @@ import EmployeesView from './views/EmployeesView';
 import SecurityView from './views/SecurityView';
 import LoginView from './views/LoginView';
 import FinancesView from './views/FinancesView';
+import GarmentsView from './views/GarmentsView';
+
 
 // Hooks (Controller)
 import { useAppData } from './hooks/useAppData';
@@ -67,7 +69,8 @@ function App() {
       case 'finances': return <FinancesView />;
       case 'importers': return <div className="animate-fade"><h1>Importadoras</h1></div>;
       case 'employees': return <EmployeesView user={currentUser} />;
-      case 'garments': return <div className="animate-fade"><h1>Catálogo de Prendas</h1></div>;
+      case 'garments': return <GarmentsView />;
+
       case 'security': return <SecurityView />;
       default: return <DashboardView user={currentUser} />;
     }
