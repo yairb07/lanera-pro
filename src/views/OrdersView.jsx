@@ -275,10 +275,10 @@ const OrdersView = ({ user, orders, setOrders }) => {
                   value={editingOrder ? editingOrder.stage : newOrder.stage}
                   onChange={e => editingOrder ? setEditingOrder({...editingOrder, stage: e.target.value}) : setNewOrder({...newOrder, stage: e.target.value})}
                 >
-                  <option>Cotización</option>
-                  <option>Confirmado</option>
-                  <option>En producción</option>
-                  <option>Listo para envío</option>
+                  <option style={{ background: '#1a1c23', color: '#fff' }}>Cotización</option>
+                  <option style={{ background: '#1a1c23', color: '#fff' }}>Confirmado</option>
+                  <option style={{ background: '#1a1c23', color: '#fff' }}>En producción</option>
+                  <option style={{ background: '#1a1c23', color: '#fff' }}>Listo para envío</option>
                 </select>
               </div>
               <div style={{ textAlign: 'left' }}>
@@ -343,10 +343,10 @@ const OrdersView = ({ user, orders, setOrders }) => {
                     onChange={e => setModalNota({...modalNota, nuevoEstado: e.target.value})}
                     style={{ width: '100%', padding: '8px', fontSize: 12, marginTop: '4px' }}
                 >
-                    <option value="Cotización">Cotización</option>
-                    <option value="Confirmado">Confirmado</option>
-                    <option value="En producción">En producción</option>
-                    <option value="Listo para envío">Listo para envío</option>
+                    <option style={{ background: '#1a1c23', color: '#fff' }} value="Cotización">Cotización</option>
+                    <option style={{ background: '#1a1c23', color: '#fff' }} value="Confirmado">Confirmado</option>
+                    <option style={{ background: '#1a1c23', color: '#fff' }} value="En producción">En producción</option>
+                    <option style={{ background: '#1a1c23', color: '#fff' }} value="Listo para envío">Listo para envío</option>
                 </select>
             </div>
 
