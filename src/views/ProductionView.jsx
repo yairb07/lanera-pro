@@ -9,13 +9,12 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
     gramajePorPrenda: 0,
   });
 
-  const diseñoSeleccionado = catalogo.find(d => d.tipo === form.prendaTipo);
-
   useEffect(() => {
-    if (diseñoSeleccionado) {
-      setForm(f => ({ ...f, gramajePorPrenda: diseñoSeleccionado.gramaje }));
+    const d = catalogo.find(x => x.tipo === form.prendaTipo);
+    if (d) {
+      setForm(f => ({ ...f, gramajePorPrenda: d.gramaje }));
     }
-  }, [form.prendaTipo, diseñoSeleccionado]);
+  }, [form.prendaTipo, catalogo]);
 
   const totalGramos = form.cantidad * form.gramajePorPrenda;
   const conoInfo = conos.find(c => c.id === form.conoId);
@@ -133,7 +132,9 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
 }
 
 const ProductionView = ({ conos = [], setConos, produccion = [], setProduccion, empleados = [], garments = [] }) => {
-  const catalogo = garments.map(g => ({ tipo: g.name, gramaje: parseInt(g.notes.vueltas) || 350 }));
+  const catalogo = React.useMemo(() => 
+    garments.map(g => ({ tipo: g.name, gramaje: parseInt(g.notes?.vueltas) || 350 })), 
+  [garments]);
 
   const registrarProduccion = (registro) => {
     const totalGramos = registro.cantidad * registro.gramajePorPrenda;
