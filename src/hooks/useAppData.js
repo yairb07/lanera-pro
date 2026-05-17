@@ -10,9 +10,38 @@ export const useAppData = () => {
     ];
   });
 
+  const [conos, setConos] = useState(() => {
+    const saved = localStorage.getItem('lanera_conos');
+    return saved ? JSON.parse(saved) : [
+      { id: "C-001", color: "Azul Marino", material: "Lana", peso: 1000, stock: 15, minimo: 5, proveedor: "TexAndes", precio: 25 },
+      { id: "C-002", color: "Rojo Carmín", material: "Algodón", peso: 1000, stock: 3, minimo: 5, proveedor: "Hilandería Sur", precio: 20 },
+    ];
+  });
+
+  const [produccion, setProduccion] = useState(() => {
+    const saved = localStorage.getItem('lanera_produccion');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [empleados, setEmpleados] = useState(() => {
+    const saved = localStorage.getItem('lanera_empleados');
+    return saved ? JSON.parse(saved) : [
+      { id: "emp_1", nombre: "Maria Lopez", rol: "Tejedora", turno: "Mañana", pago: "destajo", prendas: 0, monto: 0, estado: "activo" },
+      { id: "emp_2", nombre: "Juan Perez", rol: "Tejedora", turno: "Tarde", pago: "sueldo", prendas: 0, monto: 1200, estado: "activo" }
+    ];
+  });
+
   useEffect(() => {
     localStorage.setItem('lanera_orders', JSON.stringify(orders));
-  }, [orders]);
+    localStorage.setItem('lanera_conos', JSON.stringify(conos));
+    localStorage.setItem('lanera_produccion', JSON.stringify(produccion));
+    localStorage.setItem('lanera_empleados', JSON.stringify(empleados));
+  }, [orders, conos, produccion, empleados]);
 
-  return { orders, setOrders };
+  return { 
+    orders, setOrders, 
+    conos, setConos, 
+    produccion, setProduccion, 
+    empleados, setEmpleados 
+  };
 };

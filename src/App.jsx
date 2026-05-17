@@ -36,7 +36,7 @@ function App() {
   });
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const { orders, setOrders } = useAppData();
+  const { orders, setOrders, conos, setConos, produccion, setProduccion, empleados, setEmpleados } = useAppData();
 
   const showToast = (message) => {
     setToast(message);
@@ -69,11 +69,11 @@ function App() {
     switch (activeTab) {
       case 'dashboard': return <DashboardView user={currentUser} />;
       case 'orders': return <OrdersView user={currentUser} orders={orders} setOrders={updateOrders} />;
-      case 'finances': return <FinancesView />;
+      case 'finances': return <FinancesView produccion={produccion} conos={conos} pedidos={orders} empleados={empleados} />;
       case 'importers': return <ImportersView />;
 
       case 'employees': return <EmployeesView user={currentUser} />;
-      case 'garments': return <GarmentsView />;
+      case 'garments': return <GarmentsView conos={conos} setConos={setConos} produccion={produccion} setProduccion={setProduccion} empleados={empleados} />;
 
       case 'security': return <SecurityView />;
       default: return <DashboardView user={currentUser} />;

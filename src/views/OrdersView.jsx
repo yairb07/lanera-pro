@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 function HistorialPedido({ historial = [] }) {
   const estadoColors = {
@@ -85,6 +87,136 @@ function HistorialPedido({ historial = [] }) {
   );
 }
 
+const generarPDF = (pedido) => {
+  const doc = new jsPDF();
+  const dorado = [200, 135, 58];
+  const oscuro = [13, 15, 20];
+  const gris   = [100, 100, 100];
+
+  // ── Encabezado ──────────────────────────────
+  doc.setFillColor(...dorado);
+  doc.rect(0, 0, 210, 36, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.setFont("helvetica", "bold");
+  doc.text("LANERAPRO", 14, 16);
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.text("Taller Textil de Punto — Lima, Perú", 14, 23);
+  doc.text("RUC: 10XXXXXXXXX  |  Tel: +51 9XX XXX XXX", 14, 29);
+
+  // Número de cotización
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text(`COTIZACIÓN ${pedido.id}`, 196, 16, { align:"right" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(new Date().toLocaleDateString("es-PE", {
+    day:"2-digit", month:"long", year:"numeric"
+  }), 196, 23, { align:"right" });
+
+  // ── Datos de la importadora ──────────────────
+  doc.setTextColor(...oscuro);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.text("PARA:", 14, 48);
+  doc.setFont("helvetica", "normal");
+  doc.text(pedido.importadora || "Cliente General", 14, 55);
+  doc.setTextColor(...gris);
+  doc.setFontSize(9);
+  doc.text(`País destino: ${pedido.pais || "No especificado"}`, 14, 61);
+  doc.text(`Fecha de entrega: ${pedido.entrega || "A convenir"}`, 14, 67);
+
+  // Estado
+  doc.setFillColor(...dorado);
+  doc.roundedRect(150, 48, 46, 12, 3, 3, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text((pedido.estado || "").toUpperCase(), 173, 56, { align:"center" });
+
+  // ── Tabla de productos ───────────────────────
+  doc.autoTable({
+    startY: 78,
+    head: [["Descripción", "Material", "Cantidad", "P. Unit ($)", "Total ($)"]],
+    body: [
+      [
+        pedido.prendas || "Lote de prendas",
+        pedido.material || "Lana / Algodón",
+        (pedido.prendas || "").match(/\d+/)?.[0] || "1",
+        `$ ${((pedido.valor || 0) / (parseInt(pedido.prendas) || 1)).toFixed(2)}`,
+        `$ ${(pedido.valor || 0).toLocaleString()}`
+      ]
+    ],
+    foot: [
+      ["", "", "", "SUBTOTAL", `$ ${(pedido.valor || 0).toLocaleString()}`],
+      ["", "", "", "IGV (18%)", `$ ${((pedido.valor || 0) * 0.18).toFixed(2)}`],
+      ["", "", "", "TOTAL", `$ ${((pedido.valor || 0) * 1.18).toFixed(2)}`],
+    ],
+    headStyles: {
+      fillColor: dorado,
+      textColor: [255,255,255],
+      fontSize: 9,
+      fontStyle: "bold"
+    },
+    footStyles: {
+      fillColor: [245,245,245],
+      textColor: oscuro,
+      fontSize: 9,
+      fontStyle: "bold"
+    },
+    bodyStyles: { fontSize: 10, textColor: oscuro },
+    alternateRowStyles: { fillColor: [252,250,246] },
+    columnStyles: { 4: { fontStyle:"bold" } },
+    margin: { left:14, right:14 }
+  });
+
+  const finalY = doc.lastAutoTable.finalY + 14;
+
+  // ── Condiciones de pago ──────────────────────
+  doc.setFillColor(252, 250, 246);
+  doc.rect(14, finalY, 182, 38, "F");
+  doc.setDrawColor(...dorado);
+  doc.rect(14, finalY, 3, 38, "F");
+
+  doc.setTextColor(...oscuro);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.text("CONDICIONES DE PAGO", 20, finalY + 8);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(...gris);
+  const adelanto = pedido.adelanto || 50;
+  doc.text(`• Adelanto: ${adelanto}% al confirmar el pedido`, 20, finalY + 16);
+  doc.text(`• Saldo: ${100 - adelanto}% contra entrega de mercadería`, 20, finalY + 22);
+  doc.text("• Validez de esta cotización: 15 días calendario", 20, finalY + 28);
+  doc.text("• Precios en USD", 20, finalY + 34);
+
+  // ── Notas ────────────────────────────────────
+  if (pedido.notas) {
+    doc.setTextColor(...oscuro);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text("ESPECIFICACIONES:", 14, finalY + 52);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(...gris);
+    doc.text(pedido.notas, 14, finalY + 58);
+  }
+
+  // ── Pie de página ────────────────────────────
+  doc.setFillColor(...dorado);
+  doc.rect(0, 280, 210, 17, "F");
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(8);
+  doc.text("LaneraPro — Taller Textil de Punto  |  Lima, Perú  |  lanera-pro.vercel.app", 105, 290, { align:"center" });
+
+  // ── Descargar ────────────────────────────────
+  const nombreCliente = pedido.importadora || "Cliente";
+  doc.save(`Cotizacion_${pedido.id}_${nombreCliente.replace(/\s/g,"_")}.pdf`);
+};
 
 const OrdersView = ({ user, orders, setOrders }) => {
   const [showModal, setShowModal] = useState(false);
@@ -238,7 +370,7 @@ const OrdersView = ({ user, orders, setOrders }) => {
                     {o.stage} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
                   </span>
                 </td>
-                <td>
+                <td style={{ display: 'flex', gap: '8px' }}>
                   {user.role === 'admin' ? (
                     <button className="btn-primary" style={{ fontSize: '0.7rem', padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.05)' }} onClick={() => startEdit(o)}>
                       Editar
@@ -246,6 +378,26 @@ const OrdersView = ({ user, orders, setOrders }) => {
                   ) : (
                     <button className="btn-primary" style={{ fontSize: '0.7rem', padding: '0.4rem 0.8rem' }}>Registrar Avance</button>
                   )}
+                  <button
+                    onClick={() => generarPDF({
+                      ...o,
+                      importadora: o.country,
+                      pais: o.country,
+                      entrega: o.deadline,
+                      estado: o.stage,
+                      valor: o.value
+                    })}
+                    style={{
+                      padding:"5px 12px",
+                      background:"rgba(200,135,58,0.12)",
+                      border:"0.5px solid rgba(200,135,58,0.4)",
+                      borderRadius:7, color:"#C8873A",
+                      cursor:"pointer", fontSize:11,
+                      fontFamily:"monospace"
+                    }}
+                  >
+                    📄 PDF
+                  </button>
                 </td>
               </tr>
             ))}
