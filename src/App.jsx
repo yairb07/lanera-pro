@@ -85,16 +85,32 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <nav className={`sidebar glass-panel ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", position: "relative" }}>
+      <nav 
+        className={`glass-panel`} 
+        style={{
+          width: isSidebarCollapsed ? 80 : 260,
+          flexShrink: 0,
+          position: window.innerWidth < 768 ? "fixed" : "relative",
+          zIndex: window.innerWidth < 768 ? 200 : 100,
+          height: "100vh",
+          display: window.innerWidth < 768 && isSidebarCollapsed ? "none" : "flex",
+          flexDirection: "column",
+          transition: "width .25s",
+          padding: isSidebarCollapsed ? "2rem 1rem" : "2rem",
+          whiteSpace: "nowrap",
+          overflow: "hidden"
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
-          <h2 style={{ color: 'var(--accent)', margin: 0, fontWeight: '800' }}>LANERAPRO</h2>
+          {!isSidebarCollapsed && <h2 style={{ color: 'var(--accent)', margin: 0, fontWeight: '800' }}>LANERAPRO</h2>}
           <button 
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             style={{ 
               background: 'var(--accent-soft)', border: 'none', color: 'var(--accent)', 
               borderRadius: '8px', cursor: 'pointer', padding: '0.5rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: isSidebarCollapsed ? '0 auto' : '0'
             }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -103,68 +119,108 @@ function App() {
           </button>
         </div>
         
-        <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-          <Icons.Dashboard /> <span className="nav-text">Dashboard</span>
-        </div>
-        
-        <div className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-          <Icons.Orders /> <span className="nav-text">{currentUser.role === 'admin' ? 'Pedidos B2B' : 'Mis Tareas'}</span>
-        </div>
-
-        {currentUser.role === 'admin' && (
-          <div className={`nav-item ${activeTab === 'finances' ? 'active' : ''}`} onClick={() => setActiveTab('finances')}>
-            <Icons.Dollar /> <span className="nav-text">Finanzas</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveTab('dashboard'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+            <Icons.Dashboard /> {!isSidebarCollapsed && <span className="nav-text">Dashboard</span>}
           </div>
-        )}
-        
-        {currentUser.role === 'admin' && (
-          <>
-            <div className={`nav-item ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
-              <Icons.Users /> <span className="nav-text">Empleados</span>
+          
+          <div className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => { setActiveTab('orders'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+            <Icons.Orders /> {!isSidebarCollapsed && <span className="nav-text">{currentUser.role === 'admin' ? 'Pedidos B2B' : 'Mis Tareas'}</span>}
+          </div>
+
+          {currentUser.role === 'admin' && (
+            <div className={`nav-item ${activeTab === 'finances' ? 'active' : ''}`} onClick={() => { setActiveTab('finances'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+              <Icons.Dollar /> {!isSidebarCollapsed && <span className="nav-text">Finanzas</span>}
             </div>
-          </>
-        )}
+          )}
+          
+          {currentUser.role === 'admin' && (
+            <>
+              <div className={`nav-item ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => { setActiveTab('employees'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+                <Icons.Users /> {!isSidebarCollapsed && <span className="nav-text">Empleados</span>}
+              </div>
+            </>
+          )}
 
-        <div className={`nav-item ${activeTab === 'garments' ? 'active' : ''}`} onClick={() => setActiveTab('garments')}>
-          <Icons.Package /> <span className="nav-text">Prendas</span>
-        </div>
-
-        <div className={`nav-item ${activeTab === 'production' ? 'active' : ''}`} onClick={() => setActiveTab('production')}>
-          <Icons.Factory /> <span className="nav-text">Producción</span>
-        </div>
-
-        <div className={`nav-item ${activeTab === 'kardex' ? 'active' : ''}`} onClick={() => setActiveTab('kardex')}>
-          <Icons.Kardex /> <span className="nav-text">Kardex Conos</span>
-        </div>
-
-        {currentUser.role === 'admin' && (
-          <div className={`nav-item ${activeTab === 'security' ? 'active' : ''}`} onClick={() => setActiveTab('security')}>
-            <Icons.Camera /> <span className="nav-text">Cámaras</span>
+          <div className={`nav-item ${activeTab === 'garments' ? 'active' : ''}`} onClick={() => { setActiveTab('garments'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+            <Icons.Package /> {!isSidebarCollapsed && <span className="nav-text">Prendas</span>}
           </div>
-        )}
 
-        <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid var(--glass-border)' }}>
-          <div className="user-info" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#27ae60' }}></div>
-            {currentUser.name} ({currentUser.role})
+          <div className={`nav-item ${activeTab === 'production' ? 'active' : ''}`} onClick={() => { setActiveTab('production'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+            <Icons.Factory /> {!isSidebarCollapsed && <span className="nav-text">Producción</span>}
           </div>
-          <button className="nav-item" style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer' }} onClick={handleLogout}>
-            <Icons.Logout /> <span className="nav-text">Cerrar Sesión</span>
+
+          <div className={`nav-item ${activeTab === 'kardex' ? 'active' : ''}`} onClick={() => { setActiveTab('kardex'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+            <Icons.Kardex /> {!isSidebarCollapsed && <span className="nav-text">Kardex Conos</span>}
+          </div>
+
+          {currentUser.role === 'admin' && (
+            <div className={`nav-item ${activeTab === 'security' ? 'active' : ''}`} onClick={() => { setActiveTab('security'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+              <Icons.Camera /> {!isSidebarCollapsed && <span className="nav-text">Cámaras</span>}
+            </div>
+          )}
+        </div>
+
+        <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)' }}>
+          {!isSidebarCollapsed && (
+            <div className="user-info" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#27ae60' }}></div>
+              {currentUser.name} ({currentUser.role})
+            </div>
+          )}
+          <button className="nav-item" style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', justifyContent: isSidebarCollapsed ? 'center' : 'flex-start' }} onClick={handleLogout}>
+            <Icons.Logout /> {!isSidebarCollapsed && <span className="nav-text">Cerrar Sesión</span>}
           </button>
         </div>
       </nav>
 
-      <main className={`main-content ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        {toast && (
-          <div className="animate-fade" style={{
-            position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--accent)',
-            color: 'white', padding: '1rem 2rem', borderRadius: '8px', zIndex: 2000,
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)', fontWeight: '600'
-          }}>
-            {toast}
+      {/* OVERLAY PARA MÓVIL */}
+      {window.innerWidth < 768 && !isSidebarCollapsed && (
+        <div 
+          onClick={() => setIsSidebarCollapsed(true)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 150 }}
+        />
+      )}
+
+      <main style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        width: window.innerWidth < 768 ? "100%" : "auto",
+        minWidth: 0,
+      }}>
+        {/* TOPBAR EN MÓVIL PARA ABRIR SIDEBAR */}
+        {window.innerWidth < 768 && (
+          <div style={{ display: 'flex', padding: '12px', background: 'var(--glass-bg)', borderBottom: '1px solid var(--glass-border)', alignItems: 'center' }}>
+            <button 
+              onClick={() => setIsSidebarCollapsed(false)}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', cursor: 'pointer', padding: '8px' }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <h2 style={{ color: 'var(--accent)', margin: '0 0 0 1rem', fontSize: '1.2rem', fontWeight: '800' }}>LANERAPRO</h2>
           </div>
         )}
-        {renderContent()}
+
+        <div style={{
+          flex: 1,
+          overflowY: "auto",
+          overflowX: "hidden",
+          padding: window.innerWidth < 768 ? "12px" : "2rem",
+          WebkitOverflowScrolling: "touch",
+        }}>
+          {toast && (
+            <div className="animate-fade" style={{
+              position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--accent)',
+              color: 'white', padding: '1rem 2rem', borderRadius: '8px', zIndex: 2000,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.5)', fontWeight: '600'
+            }}>
+              {toast}
+            </div>
+          )}
+          {renderContent()}
+        </div>
       </main>
     </div>
   );

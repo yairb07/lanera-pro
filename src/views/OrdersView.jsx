@@ -324,7 +324,7 @@ const OrdersView = ({ user, orders, setOrders }) => {
         </div>
       )}
       
-      <div className="glass-panel" style={{ marginTop: '2rem', padding: '1rem', overflowX: 'auto' }}>
+      <div className="glass-panel" style={{ marginTop: '2rem', padding: '1rem', overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: 8 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
           <thead>
             <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)' }}>

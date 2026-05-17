@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as XLSX from "xlsx";
 
 // ── Datos iniciales (luego vendrán de Supabase) ──────────────────
 const MARCAS = ["Michell", "Inca Tops", "Incalpaca", "Otra"];
@@ -174,6 +175,69 @@ export default function KardexView() {
     setModalCono(false);
   };
 
+  // ── Exportar a Excel ─────────────────────────────────────────
+  const exportarKardex = () => {
+    const wb = XLSX.utils.book_new();
+  
+    // Hoja 1 — Stock actual
+    const stockData = [
+      ["KARDEX DE CONOS — STOCK ACTUAL"],
+      [`Generado: ${new Date().toLocaleDateString("es-PE")}`],
+      [],
+      ["Código","Marca","Color","Peso/cono","Proveedor","Stock actual","Estado"],
+      ...conos.map(c => [
+        c.codigo, c.marca, c.color, c.peso, c.proveedor, c.stock,
+        c.stock === 0 ? "AGOTADO"
+        : c.stock <= 3 ? "CRÍTICO"
+        : c.stock <= 8 ? "BAJO"
+        : "NORMAL"
+      ])
+    ];
+    const wsStock = XLSX.utils.aoa_to_sheet(stockData);
+    wsStock["!cols"] = [12,14,16,10,20,12,10].map(w => ({ wch:w }));
+    XLSX.utils.book_append_sheet(wb, wsStock, "Stock Actual");
+  
+    // Hoja 2 — Historial de movimientos
+    const histData = [
+      ["HISTORIAL DE MOVIMIENTOS — KARDEX"],
+      [],
+      ["Fecha","Hora","Código","Marca","Color","Tipo","Cantidad","Stock Anterior","Stock Nuevo","Motivo"],
+      ...movimientos.map(m => [
+        m.fecha, m.hora, m.codigo, m.marca, m.color,
+        m.tipo.toUpperCase(), m.cantidad,
+        m.stockAnterior, m.stockNuevo, m.motivo
+      ])
+    ];
+    const wsHist = XLSX.utils.aoa_to_sheet(histData);
+    wsHist["!cols"] = [12,8,12,14,16,10,10,14,12,30].map(w => ({ wch:w }));
+    XLSX.utils.book_append_sheet(wb, wsHist, "Historial");
+  
+    // Hoja 3 — Resumen por marca
+    const marcas = [...new Set(conos.map(c => c.marca))];
+    const resumenData = [
+      ["RESUMEN POR MARCA"],
+      [],
+      ["Marca","Total tipos","Total conos","Críticos","Estado general"],
+      ...marcas.map(marca => {
+        const delaMarca = conos.filter(c => c.marca === marca);
+        const totalStock = delaMarca.reduce((s,c) => s + c.stock, 0);
+        const criticos = delaMarca.filter(c => c.stock <= 3).length;
+        return [
+          marca,
+          delaMarca.length,
+          totalStock,
+          criticos,
+          criticos > 0 ? "⚠ Requiere reposición" : "✓ OK"
+        ];
+      })
+    ];
+    const wsRes = XLSX.utils.aoa_to_sheet(resumenData);
+    wsRes["!cols"] = [18,14,14,10,22].map(w => ({ wch:w }));
+    XLSX.utils.book_append_sheet(wb, wsRes, "Resumen por Marca");
+  
+    XLSX.writeFile(wb, `LaneraPro_Kardex_${new Date().toLocaleDateString("es-PE").replace(/\//g,"-")}.xlsx`);
+  };
+
   // ── Filtros ────────────────────────────────────────────────────
   const conosFiltrados = filtroMarca === "Todas"
     ? conos
@@ -191,7 +255,7 @@ export default function KardexView() {
     <div style={{ color:"#F0EDE8", fontFamily:"sans-serif" }}>
 
       {/* ── Métricas ── */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:20 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(160px, 1fr))", gap:12, marginBottom:20 }}>
         {[
           { label:"Total conos en stock", value:totalConos,   badge:"todas las marcas",    bc:"#4CAF82" },
           { label:"Tipos registrados",    value:conos.length, badge:`${MARCAS.length} marcas`, bc:"#C8873A" },
@@ -223,7 +287,18 @@ export default function KardexView() {
             </button>
           ))}
         </div>
-        <div style={{ display:"flex", gap:8 }}>
+        <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+          <button onClick={exportarKardex} style={{
+            padding:"7px 14px",
+            background:"rgba(76,175,130,0.12)",
+            border:"0.5px solid rgba(76,175,130,0.3)",
+            borderRadius:8, color:"#4CAF82",
+            cursor:"pointer", fontSize:11,
+            fontFamily:"monospace",
+            display:"flex", alignItems:"center", gap:5,
+          }}>
+            📊 Exportar Kardex Excel
+          </button>
           <button onClick={() => setModalCono(true)} style={S.btnGhost}>＋ Nuevo cono</button>
           <button onClick={() => setModalMov(true)}  style={S.btnPrimary}>↑↓ Registrar movimiento</button>
         </div>
@@ -248,8 +323,12 @@ export default function KardexView() {
       {/* ── TAB: Stock actual ── */}
       {tab === "stock" && (
         <div style={{ ...S.card, padding:0, overflow:"hidden" }}>
-          <div style={{ overflowX:"auto" }}>
-            <table style={{ width:"100%", borderCollapse:"collapse", fontSize:11, fontFamily:"monospace" }}>
+          <div style={{ 
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+            borderRadius: 8,
+          }}>
+            <table style={{ width:"100%", minWidth: 600, borderCollapse:"collapse", fontSize:11, fontFamily:"monospace" }}>
               <thead>
                 <tr>
                   {["Código","Marca","Color","Peso/cono","Proveedor","Stock","Estado","Movimiento rápido"].map(h => (
@@ -335,8 +414,12 @@ export default function KardexView() {
               Sin movimientos registrados aún — usa "↑↓ Registrar movimiento"
             </div>
           ) : (
-            <div style={{ overflowX:"auto" }}>
-              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:11, fontFamily:"monospace" }}>
+            <div style={{ 
+              overflowX: "auto",
+              WebkitOverflowScrolling: "touch",
+              borderRadius: 8,
+            }}>
+              <table style={{ width:"100%", minWidth: 600, borderCollapse:"collapse", fontSize:11, fontFamily:"monospace" }}>
                 <thead>
                   <tr>
                     {["Fecha","Hora","Código","Marca","Color","Tipo","Cantidad","Stock anterior","Stock nuevo","Motivo"].map(h => (

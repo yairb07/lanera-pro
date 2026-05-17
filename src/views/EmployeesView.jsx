@@ -30,7 +30,7 @@ const EmployeesView = ({ user }) => {
         <button className="btn-primary">+ Nuevo Empleado / Usuario</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
         {employees.map(emp => (
           <div key={emp.id} className="glass-panel" style={{ padding: '1.5rem', borderLeft: emp.status === 'Activo' ? '4px solid #27ae60' : '4px solid #f1c40f' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

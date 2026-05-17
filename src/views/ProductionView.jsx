@@ -213,7 +213,7 @@ const ProductionView = ({ conos = [], setConos, produccion = [], setProduccion, 
 
         {/* Tabla a la derecha */}
         <div style={{ flex: '2 1 500px', minWidth: 0 }}>
-          <div className="glass-panel" style={{ padding: '1rem', overflowX: 'auto' }}>
+          <div className="glass-panel" style={{ padding: '1rem', overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: 8 }}>
             <h3 style={{ margin: 0, marginBottom: '1rem', color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase' }}>
               Historial de Hoy
             </h3>
