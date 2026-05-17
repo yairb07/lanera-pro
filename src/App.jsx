@@ -9,7 +9,6 @@ import SecurityView from './views/SecurityView';
 import LoginView from './views/LoginView';
 import FinancesView from './views/FinancesView';
 import GarmentsView from './views/GarmentsView';
-import ImportersView from './views/ImportersView';
 import ProductionView from './views/ProductionView';
 
 
@@ -69,17 +68,16 @@ function App() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard': return <DashboardView user={currentUser} />;
+      case 'dashboard': return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} />;
       case 'orders': return <OrdersView user={currentUser} orders={orders} setOrders={updateOrders} />;
       case 'finances': return <FinancesView produccion={produccion} conos={conos} pedidos={orders} empleados={empleados} />;
-      case 'importers': return <ImportersView />;
 
       case 'employees': return <EmployeesView user={currentUser} />;
       case 'garments': return <GarmentsView garments={garments} setGarments={setGarments} />;
       case 'production': return <ProductionView conos={conos} setConos={setConos} produccion={produccion} setProduccion={setProduccion} empleados={empleados} garments={garments} />;
 
       case 'security': return <SecurityView />;
-      default: return <DashboardView user={currentUser} />;
+      default: return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} />;
     }
   };
 
@@ -118,9 +116,6 @@ function App() {
         
         {currentUser.role === 'admin' && (
           <>
-            <div className={`nav-item ${activeTab === 'importers' ? 'active' : ''}`} onClick={() => setActiveTab('importers')}>
-              <Icons.Users /> <span className="nav-text">Importadoras</span>
-            </div>
             <div className={`nav-item ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => setActiveTab('employees')}>
               <Icons.Users /> <span className="nav-text">Empleados</span>
             </div>
