@@ -38,7 +38,7 @@ function App() {
   });
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const { orders, setOrders, conos, setConos, produccion, setProduccion, empleados, setEmpleados } = useAppData();
+  const { orders, setOrders, conos, setConos, produccion, setProduccion, empleados, setEmpleados, garments, setGarments } = useAppData();
 
   const showToast = (message) => {
     setToast(message);
