@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 
 const GarmentsView = ({ garments = [], setGarments }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedGarment, setSelectedGarment] = useState(null);
+  const [hoveredGarment, setHoveredGarment] = useState(null);
+  const [newGarment, setNewGarment] = useState({ name: '', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '' });
+
   const handleAddGarment = (e) => {
     e.preventDefault();
     const garmentToAdd = {

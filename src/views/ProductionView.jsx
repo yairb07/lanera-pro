@@ -9,12 +9,12 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
     gramajePorPrenda: 0,
   });
 
-  useEffect(() => {
-    const d = catalogo.find(x => x.tipo === form.prendaTipo);
-    if (d) {
-      setForm(f => ({ ...f, gramajePorPrenda: d.gramaje }));
-    }
-  }, [form.prendaTipo, catalogo]);
+  // Al cambiar el tipo de prenda, actualizamos el gramaje si está en el catálogo
+  const handlePrendaChange = (e) => {
+    const tipo = e.target.value;
+    const d = catalogo.find(x => x.tipo === tipo);
+    setForm({ ...form, prendaTipo: tipo, gramajePorPrenda: d ? d.gramaje : form.gramajePorPrenda });
+  };
 
   const totalGramos = form.cantidad * form.gramajePorPrenda;
   const conoInfo = conos.find(c => c.id === form.conoId);
@@ -53,7 +53,7 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
           <label style={{ fontSize:10, color:"#666", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Tipo de prenda</label>
           <select
             value={form.prendaTipo}
-            onChange={e => setForm({...form, prendaTipo:e.target.value})}
+            onChange={handlePrendaChange}
             style={{ width:"100%", padding:"7px 9px", background:"rgba(255,255,255,0.04)", border:"0.5px solid rgba(255,255,255,0.1)", borderRadius:7, color:"#F0EDE8", fontSize:12, outline:"none" }}
           >
             <option style={{ background: '#1a1c23' }} value="">Seleccionar...</option>
