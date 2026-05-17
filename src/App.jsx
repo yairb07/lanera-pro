@@ -68,7 +68,7 @@ function App() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard': return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} />;
+      case 'dashboard': return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} setActiveTab={setActiveTab} />;
       case 'orders': return <OrdersView user={currentUser} orders={orders} setOrders={updateOrders} />;
       case 'finances': return <FinancesView produccion={produccion} conos={conos} pedidos={orders} empleados={empleados} />;
 
@@ -77,7 +77,7 @@ function App() {
       case 'production': return <ProductionView conos={conos} setConos={setConos} produccion={produccion} setProduccion={setProduccion} empleados={empleados} garments={garments} />;
 
       case 'security': return <SecurityView />;
-      default: return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} />;
+      default: return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} setActiveTab={setActiveTab} />;
     }
   };
 
