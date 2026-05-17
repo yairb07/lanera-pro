@@ -185,9 +185,9 @@ const ProductionView = ({ conos = [], setConos, produccion = [], setProduccion, 
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '2rem' }}>
+      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
         {/* Formulario a la izquierda */}
-        <div style={{ flex: '0 0 350px' }}>
+        <div style={{ flex: '1 1 300px', minWidth: '300px', maxWidth: '100%' }}>
           <FormRegistroProduccion
             conos={conos}
             catalogo={catalogo}
@@ -212,7 +212,7 @@ const ProductionView = ({ conos = [], setConos, produccion = [], setProduccion, 
         </div>
 
         {/* Tabla a la derecha */}
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: '2 1 500px', minWidth: 0 }}>
           <div className="glass-panel" style={{ padding: '1rem', overflowX: 'auto' }}>
             <h3 style={{ margin: 0, marginBottom: '1rem', color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase' }}>
               Historial de Hoy
