@@ -1,4 +1,4 @@
-const CACHE = "laneraApp-v1";
+const CACHE = "laneraApp-v2";
 const ASSETS = [
   "/",
   "/index.html",
@@ -23,11 +23,14 @@ self.addEventListener("activate", e => {
   self.clients.claim();
 });
 
-// Fetch — sirve desde caché si no hay internet
+// Fetch — Network First (siempre pide la última versión si hay internet)
 self.addEventListener("fetch", e => {
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      return cached || fetch(e.request).catch(() => caches.match("/"));
+    fetch(e.request).catch(() => {
+      // Si falla la red, buscar en caché
+      return caches.match(e.request).then(cached => {
+        return cached || caches.match("/");
+      });
     })
   );
 });
