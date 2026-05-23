@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './index.css';
 
 // Views
@@ -16,6 +16,7 @@ import KardexView from './views/KardexView';
 
 // Hooks (Controller)
 import { useAppData } from './hooks/useAppData';
+import { useMediaQuery } from './hooks/useMediaQuery';
 
 // Icons
 const Icons = {
@@ -37,9 +38,13 @@ function App() {
     const saved = localStorage.getItem('lanera_session');
     return saved ? JSON.parse(saved) : null;
   });
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(max-width: 767px)').matches;
+  });
+  const isMobile = useMediaQuery('(max-width: 767px)');
 
-  const { orders, setOrders, conos, setConos, produccion, setProduccion, empleados, setEmpleados, garments, setGarments } = useAppData();
+  const { orders, setOrders, conos, setConos, produccion, setProduccion, empleados, garments, setGarments } = useAppData();
 
   const showToast = (message) => {
     setToast(message);
@@ -91,10 +96,10 @@ function App() {
         style={{
           width: isSidebarCollapsed ? 80 : 260,
           flexShrink: 0,
-          position: window.innerWidth < 768 ? "fixed" : "relative",
-          zIndex: window.innerWidth < 768 ? 200 : 100,
+          position: isMobile ? "fixed" : "relative",
+          zIndex: isMobile ? 200 : 100,
           height: "100vh",
-          display: window.innerWidth < 768 && isSidebarCollapsed ? "none" : "flex",
+          display: isMobile && isSidebarCollapsed ? "none" : "flex",
           flexDirection: "column",
           transition: "width .25s",
           padding: isSidebarCollapsed ? "2rem 1rem" : "2rem",
@@ -120,42 +125,42 @@ function App() {
         </div>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveTab('dashboard'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+          <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveTab('dashboard'); if(isMobile) setIsSidebarCollapsed(true); }}>
             <Icons.Dashboard /> {!isSidebarCollapsed && <span className="nav-text">Dashboard</span>}
           </div>
           
-          <div className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => { setActiveTab('orders'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+          <div className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => { setActiveTab('orders'); if(isMobile) setIsSidebarCollapsed(true); }}>
             <Icons.Orders /> {!isSidebarCollapsed && <span className="nav-text">{currentUser.role === 'admin' ? 'Pedidos B2B' : 'Mis Tareas'}</span>}
           </div>
 
           {currentUser.role === 'admin' && (
-            <div className={`nav-item ${activeTab === 'finances' ? 'active' : ''}`} onClick={() => { setActiveTab('finances'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+            <div className={`nav-item ${activeTab === 'finances' ? 'active' : ''}`} onClick={() => { setActiveTab('finances'); if(isMobile) setIsSidebarCollapsed(true); }}>
               <Icons.Dollar /> {!isSidebarCollapsed && <span className="nav-text">Finanzas</span>}
             </div>
           )}
           
           {currentUser.role === 'admin' && (
             <>
-              <div className={`nav-item ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => { setActiveTab('employees'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+              <div className={`nav-item ${activeTab === 'employees' ? 'active' : ''}`} onClick={() => { setActiveTab('employees'); if(isMobile) setIsSidebarCollapsed(true); }}>
                 <Icons.Users /> {!isSidebarCollapsed && <span className="nav-text">Empleados</span>}
               </div>
             </>
           )}
 
-          <div className={`nav-item ${activeTab === 'garments' ? 'active' : ''}`} onClick={() => { setActiveTab('garments'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+          <div className={`nav-item ${activeTab === 'garments' ? 'active' : ''}`} onClick={() => { setActiveTab('garments'); if(isMobile) setIsSidebarCollapsed(true); }}>
             <Icons.Package /> {!isSidebarCollapsed && <span className="nav-text">Prendas</span>}
           </div>
 
-          <div className={`nav-item ${activeTab === 'production' ? 'active' : ''}`} onClick={() => { setActiveTab('production'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+          <div className={`nav-item ${activeTab === 'production' ? 'active' : ''}`} onClick={() => { setActiveTab('production'); if(isMobile) setIsSidebarCollapsed(true); }}>
             <Icons.Factory /> {!isSidebarCollapsed && <span className="nav-text">Producción</span>}
           </div>
 
-          <div className={`nav-item ${activeTab === 'kardex' ? 'active' : ''}`} onClick={() => { setActiveTab('kardex'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+          <div className={`nav-item ${activeTab === 'kardex' ? 'active' : ''}`} onClick={() => { setActiveTab('kardex'); if(isMobile) setIsSidebarCollapsed(true); }}>
             <Icons.Kardex /> {!isSidebarCollapsed && <span className="nav-text">Kardex Conos</span>}
           </div>
 
           {currentUser.role === 'admin' && (
-            <div className={`nav-item ${activeTab === 'security' ? 'active' : ''}`} onClick={() => { setActiveTab('security'); if(window.innerWidth < 768) setIsSidebarCollapsed(true); }}>
+            <div className={`nav-item ${activeTab === 'security' ? 'active' : ''}`} onClick={() => { setActiveTab('security'); if(isMobile) setIsSidebarCollapsed(true); }}>
               <Icons.Camera /> {!isSidebarCollapsed && <span className="nav-text">Cámaras</span>}
             </div>
           )}
@@ -175,7 +180,7 @@ function App() {
       </nav>
 
       {/* OVERLAY PARA MÓVIL */}
-      {window.innerWidth < 768 && !isSidebarCollapsed && (
+      {isMobile && !isSidebarCollapsed && (
         <div 
           onClick={() => setIsSidebarCollapsed(true)}
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 150 }}
@@ -187,11 +192,11 @@ function App() {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        width: window.innerWidth < 768 ? "100%" : "auto",
+        width: isMobile ? "100%" : "auto",
         minWidth: 0,
       }}>
         {/* TOPBAR EN MÓVIL PARA ABRIR SIDEBAR */}
-        {window.innerWidth < 768 && (
+        {isMobile && (
           <div style={{ display: 'flex', padding: '12px', background: 'var(--glass-bg)', borderBottom: '1px solid var(--glass-border)', alignItems: 'center' }}>
             <button 
               onClick={() => setIsSidebarCollapsed(false)}
@@ -207,7 +212,7 @@ function App() {
           flex: 1,
           overflowY: "auto",
           overflowX: "hidden",
-          padding: window.innerWidth < 768 ? "12px" : "2rem",
+          padding: isMobile ? "12px" : "2rem",
           WebkitOverflowScrolling: "touch",
         }}>
           {toast && (

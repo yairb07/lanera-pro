@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const DashboardView = ({ user, produccion = [], pedidos = [], conos = [], setActiveTab }) => {
   // Estado de fecha seleccionada (por defecto hoy)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 
 function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
   const [form, setForm] = useState({
@@ -132,7 +132,7 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
 }
 
 const ProductionView = ({ conos = [], setConos, produccion = [], setProduccion, empleados = [], garments = [] }) => {
-  const catalogo = React.useMemo(() => 
+  const catalogo = useMemo(() => 
     garments.map(g => ({ tipo: g.name, gramaje: parseInt(g.notes?.vueltas) || 350 })), 
   [garments]);
 

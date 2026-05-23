@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const SecurityView = () => {
   const [cameras, setCameras] = useState([
@@ -192,4 +192,3 @@ const SecurityView = () => {
 };
 
 export default SecurityView;
-

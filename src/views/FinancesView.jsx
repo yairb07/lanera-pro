@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import * as XLSX from "xlsx";
 
 const FinancesView = ({ produccion = [], conos = [], pedidos = [], empleados = [] }) => {

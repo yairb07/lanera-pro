@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-const EmployeesView = ({ user }) => {
-  const [employees, setEmployees] = useState([
+const EmployeesView = () => {
+  const [employees] = useState([
     { id: 'emp_1', name: 'Juan Perez', role: 'Tejedor', tasks: 3, dailyPay: 120.50, monthPay: 2450.00, status: 'Activo' },
     { id: 'emp_2', name: 'Maria Lopez', role: 'Remalladora', tasks: 5, dailyPay: 150.00, monthPay: 3100.00, status: 'Activo' },
     { id: 'emp_3', name: 'Carlos Ruíz', role: 'Acabados', tasks: 2, dailyPay: 90.00, monthPay: 1800.00, status: 'En Descanso' }

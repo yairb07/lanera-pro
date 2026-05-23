@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const GarmentsView = ({ garments = [], setGarments }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -269,5 +269,4 @@ const GarmentsView = ({ garments = [], setGarments }) => {
 };
 
 export default GarmentsView;
-
 

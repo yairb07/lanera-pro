@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const LoginView = ({ onLogin }) => {
   const [username, setUsername] = useState('');

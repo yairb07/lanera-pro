@@ -1,16 +1,43 @@
-# React + Vite
+# LaneraPro
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema de gestion textil para pedidos B2B, produccion, empleados, prendas, inventario Kardex, finanzas y monitoreo.
 
-Currently, two official plugins are available:
+## Estado del proyecto
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+La aplicacion actual funciona como prototipo avanzado en React + Vite. Ya compila y pasa lint, pero la persistencia principal sigue siendo local al navegador. Para produccion debe conectarse a backend y base de datos.
 
-## React Compiler
+## Scripts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm run dev
+npm run server
+npm run lint
+npm run build
+npm run preview
+npm run hash:password -- "una-contrasena-segura"
+```
 
-## Expanding the ESLint configuration
+## Configuracion
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Copia `.env.example` a `.env.local` y ajusta la URL de la API:
+
+```bash
+VITE_API_URL=http://localhost:4000/api
+```
+
+## Produccion
+
+La ruta recomendada esta documentada en `docs/PRODUCTION_ROADMAP.md`.
+
+El esquema inicial de base de datos PostgreSQL esta en `database/schema.sql`.
+
+Si usas Vercel + Neon, la integracion suele crear `POSTGRES_URL`. El backend acepta `DATABASE_URL` o `POSTGRES_URL`.
+
+Antes de publicar hay que completar:
+
+- Backend con autenticacion real.
+- PostgreSQL como fuente de datos.
+- Migracion fuera de `localStorage`.
+- Permisos validados en servidor.
+- Auditoria de acciones sensibles.
+- Correccion de dependencias vulnerables reportadas por `npm audit`.
