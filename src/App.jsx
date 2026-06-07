@@ -5,9 +5,7 @@ import './index.css';
 import DashboardView from './views/DashboardView';
 import OrdersView from './views/OrdersView';
 import EmployeesView from './views/EmployeesView';
-import SecurityView from './views/SecurityView';
 import LoginView from './views/LoginView';
-import FinancesView from './views/FinancesView';
 import GarmentsView from './views/GarmentsView';
 import ProductionView from './views/ProductionView';
 import KardexView from './views/KardexView';
@@ -77,14 +75,12 @@ function App() {
     switch (activeTab) {
       case 'dashboard': return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} setActiveTab={setActiveTab} />;
       case 'orders': return <OrdersView user={currentUser} orders={orders} setOrders={updateOrders} />;
-      case 'finances': return <FinancesView produccion={produccion} conos={conos} pedidos={orders} empleados={empleados} />;
 
       case 'employees': return <EmployeesView user={currentUser} />;
       case 'garments': return <GarmentsView garments={garments} setGarments={setGarments} />;
       case 'production': return <ProductionView conos={conos} setConos={setConos} produccion={produccion} setProduccion={setProduccion} empleados={empleados} garments={garments} />;
       case 'kardex': return <KardexView />;
 
-      case 'security': return <SecurityView />;
       default: return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} setActiveTab={setActiveTab} />;
     }
   };
@@ -132,12 +128,6 @@ function App() {
           <div className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => { setActiveTab('orders'); if(isMobile) setIsSidebarCollapsed(true); }}>
             <Icons.Orders /> {!isSidebarCollapsed && <span className="nav-text">{currentUser.role === 'admin' ? 'Pedidos B2B' : 'Mis Tareas'}</span>}
           </div>
-
-          {currentUser.role === 'admin' && (
-            <div className={`nav-item ${activeTab === 'finances' ? 'active' : ''}`} onClick={() => { setActiveTab('finances'); if(isMobile) setIsSidebarCollapsed(true); }}>
-              <Icons.Dollar /> {!isSidebarCollapsed && <span className="nav-text">Finanzas</span>}
-            </div>
-          )}
           
           {currentUser.role === 'admin' && (
             <>
@@ -158,12 +148,6 @@ function App() {
           <div className={`nav-item ${activeTab === 'kardex' ? 'active' : ''}`} onClick={() => { setActiveTab('kardex'); if(isMobile) setIsSidebarCollapsed(true); }}>
             <Icons.Kardex /> {!isSidebarCollapsed && <span className="nav-text">Kardex Conos</span>}
           </div>
-
-          {currentUser.role === 'admin' && (
-            <div className={`nav-item ${activeTab === 'security' ? 'active' : ''}`} onClick={() => { setActiveTab('security'); if(isMobile) setIsSidebarCollapsed(true); }}>
-              <Icons.Camera /> {!isSidebarCollapsed && <span className="nav-text">Cámaras</span>}
-            </div>
-          )}
         </div>
 
         <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)' }}>
