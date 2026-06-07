@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
-const DashboardView = ({ user, produccion = [], pedidos = [], conos = [], setActiveTab }) => {
+const DashboardView = ({ user, produccion = [], conos = [], setActiveTab }) => {
   // Estado de fecha seleccionada (por defecto hoy)
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   // Cálculos para Admin
-  const pedidosPendientes = pedidos.filter(p => p.stage !== 'Entregado').length;
   const conosCriticos = conos.filter(c => c.stock <= c.minimo).length;
   
   // Producción filtrada por la fecha seleccionada
@@ -64,20 +63,6 @@ const DashboardView = ({ user, produccion = [], pedidos = [], conos = [], setAct
               <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>Registradas en {produccionFiltrada.length} lotes de trabajo</p>
             </div>
 
-            <div 
-              className="glass-panel hover-card" 
-              style={{ padding: '1.5rem', borderLeft: '4px solid var(--accent)', cursor: 'pointer', transition: 'transform 0.2s' }}
-              onClick={() => setActiveTab && setActiveTab('orders')}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>Pedidos Activos</h4>
-                <span style={{ background: 'rgba(200, 135, 58, 0.2)', color: 'var(--accent)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>B2B ↗</span>
-              </div>
-              <h2 style={{ fontSize: '2.5rem', margin: '0 0 0.5rem 0' }}>{pedidosPendientes}</h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>Pedidos en curso o por entregar</p>
-            </div>
 
             <div 
               className="glass-panel hover-card" 

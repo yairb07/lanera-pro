@@ -3,7 +3,6 @@ import './index.css';
 
 // Views
 import DashboardView from './views/DashboardView';
-import OrdersView from './views/OrdersView';
 import EmployeesView from './views/EmployeesView';
 import LoginView from './views/LoginView';
 import GarmentsView from './views/GarmentsView';
@@ -19,7 +18,6 @@ import { useMediaQuery } from './hooks/useMediaQuery';
 // Icons
 const Icons = {
   Dashboard: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>,
-  Orders: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>,
   Users: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>,
   Package: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7.5 4.27 9 5.15"></path><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.27 6.96 8.73 5.04 8.73-5.04"></path><path d="M12 22.08V12"></path></svg>,
   Kardex: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>,
@@ -42,7 +40,7 @@ function App() {
   });
   const isMobile = useMediaQuery('(max-width: 767px)');
 
-  const { orders, setOrders, conos, setConos, produccion, setProduccion, empleados, garments, setGarments } = useAppData();
+  const { conos, setConos, produccion, setProduccion, empleados, garments, setGarments } = useAppData();
 
   const showToast = (message) => {
     setToast(message);
@@ -62,10 +60,6 @@ function App() {
     showToast('Sesión cerrada correctamente');
   };
 
-  const updateOrders = (newOrders) => {
-    setOrders(newOrders);
-    showToast('¡Pedido actualizado con éxito!');
-  };
 
   if (!currentUser) {
     return <LoginView onLogin={handleLogin} />;
@@ -73,15 +67,14 @@ function App() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard': return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} setActiveTab={setActiveTab} />;
-      case 'orders': return <OrdersView user={currentUser} orders={orders} setOrders={updateOrders} />;
+      case 'dashboard': return <DashboardView user={currentUser} produccion={produccion} conos={conos} setActiveTab={setActiveTab} />;
 
       case 'employees': return <EmployeesView user={currentUser} />;
       case 'garments': return <GarmentsView garments={garments} setGarments={setGarments} />;
       case 'production': return <ProductionView conos={conos} setConos={setConos} produccion={produccion} setProduccion={setProduccion} empleados={empleados} garments={garments} />;
       case 'kardex': return <KardexView />;
 
-      default: return <DashboardView user={currentUser} produccion={produccion} pedidos={orders} conos={conos} setActiveTab={setActiveTab} />;
+      default: return <DashboardView user={currentUser} produccion={produccion} conos={conos} setActiveTab={setActiveTab} />;
     }
   };
 
@@ -123,10 +116,6 @@ function App() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveTab('dashboard'); if(isMobile) setIsSidebarCollapsed(true); }}>
             <Icons.Dashboard /> {!isSidebarCollapsed && <span className="nav-text">Dashboard</span>}
-          </div>
-          
-          <div className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => { setActiveTab('orders'); if(isMobile) setIsSidebarCollapsed(true); }}>
-            <Icons.Orders /> {!isSidebarCollapsed && <span className="nav-text">{currentUser.role === 'admin' ? 'Pedidos B2B' : 'Mis Tareas'}</span>}
           </div>
           
           {currentUser.role === 'admin' && (

@@ -70,9 +70,9 @@ const EmployeesView = () => {
             <h3>Asignar Tarea a {selectedEmp.name}</h3>
             <form style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={(e) => { e.preventDefault(); setModalType(null); }}>
               <select className="glass-input">
-                <option>Seleccionar Pedido B2B...</option>
-                <option>#1024 - Chile (Chompas)</option>
-                <option>#1026 - España (Cárdigans)</option>
+                <option>Seleccionar tarea de produccion...</option>
+                <option>Tejido de chompas</option>
+                <option>Acabado de cardigans</option>
               </select>
               <input type="number" placeholder="Cantidad de prendas" className="glass-input" required />
               <input type="date" className="glass-input" required />
@@ -93,7 +93,7 @@ const EmployeesView = () => {
               {[1, 2].map(i => (
                 <div key={i} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between' }}>
                   <div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Chompa Alpaca (Pedido #102{i+3})</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Chompa Alpaca</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Terminado: {i*5} de 20 unidades</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
