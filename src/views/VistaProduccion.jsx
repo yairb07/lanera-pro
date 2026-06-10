@@ -131,10 +131,10 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
   );
 }
 
-const ProductionView = ({ conos = [], setConos, produccion = [], setProduccion, empleados = [], garments = [] }) => {
+const VistaProduccion = ({ conos = [], setConos, produccion = [], setProduccion, empleados = [], prendas = [] }) => {
   const catalogo = useMemo(() => 
-    garments.map(g => ({ tipo: g.name, gramaje: parseInt(g.notes?.vueltas) || 350 })), 
-  [garments]);
+    prendas.map(g => ({ tipo: g.name, gramaje: parseInt(g.notes?.vueltas) || 350 })), 
+  [prendas]);
 
   const registrarProduccion = (registro) => {
     const totalGramos = registro.cantidad * registro.gramajePorPrenda;
@@ -260,4 +260,4 @@ const ProductionView = ({ conos = [], setConos, produccion = [], setProduccion, 
   );
 };
 
-export default ProductionView;
+export default VistaProduccion;

@@ -1,40 +1,40 @@
 import { useState } from 'react';
 
-const GarmentsView = ({ garments = [], setGarments }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedGarment, setSelectedGarment] = useState(null);
-  const [hoveredGarment, setHoveredGarment] = useState(null);
-  const [newGarment, setNewGarment] = useState({ name: '', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '' });
+const VistaPrendas = ({ prendas = [], setPrendas }) => {
+  const [estaModalAbierto, setEstaModalAbierto] = useState(false);
+  const [prendaSeleccionada, setPrendaSeleccionada] = useState(null);
+  const [prendaResaltada, setPrendaResaltada] = useState(null);
+  const [nuevaPrenda, setNuevaPrenda] = useState({ name: '', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '' });
 
-  const handleAddGarment = (e) => {
+  const manejarAgregarPrenda = (e) => {
     e.preventDefault();
-    const garmentToAdd = {
+    const prendaAAgregar = {
       id: Date.now(),
-      name: newGarment.name,
-      image: newGarment.image || "https://images.unsplash.com/photo-1434031219129-14e5c876f628?q=80&w=1170&auto=format&fit=crop",
-      programFile: newGarment.programFile || "diseño_heng_qiang.hcd",
+      name: nuevaPrenda.name,
+      image: nuevaPrenda.image || "https://images.unsplash.com/photo-1434031219129-14e5c876f628?q=80&w=1170&auto=format&fit=crop",
+      programFile: nuevaPrenda.programFile || "diseño_heng_qiang.hcd",
       notes: {
-        vueltas: newGarment.vueltas,
-        tension: newGarment.tension,
-        hilo: newGarment.hilo,
-        aguja: newGarment.aguja
+        vueltas: nuevaPrenda.vueltas,
+        tension: nuevaPrenda.tension,
+        hilo: nuevaPrenda.hilo,
+        aguja: nuevaPrenda.aguja
       }
     };
 
-    const updatedGarments = [...garments, garmentToAdd];
-    setGarments(updatedGarments);
-    localStorage.setItem('lanera_garments', JSON.stringify(updatedGarments));
-    setIsModalOpen(false);
-    setNewGarment({ name: '', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '' });
+    const prendasActualizadas = [...prendas, prendaAAgregar];
+    setPrendas(prendasActualizadas);
+    localStorage.setItem('taller_prendas', JSON.stringify(prendasActualizadas));
+    setEstaModalAbierto(false);
+    setNuevaPrenda({ name: '', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '' });
   };
 
-  const handleDownload = (garment) => {
-    const content = `Heng Qiang Program: ${garment.programFile}\nDesign: ${garment.name}\nTechnical Notes:\nVueltas: ${garment.notes.vueltas}\nTension: ${garment.notes.tension}\nHilo: ${garment.notes.hilo}\nAguja: ${garment.notes.aguja}`;
-    const blob = new Blob([content], { type: 'text/plain' });
+  const manejarDescarga = (prenda) => {
+    const contenido = `Programa Heng Qiang: ${prenda.programFile}\nDiseño: ${prenda.name}\nNotas Técnicas:\nVueltas: ${prenda.notes.vueltas}\nTensión: ${prenda.notes.tension}\nHilo: ${prenda.notes.hilo}\nAguja: ${prenda.notes.aguja}`;
+    const blob = new Blob([contenido], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = garment.programFile;
+    a.download = prenda.programFile;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -46,13 +46,13 @@ const GarmentsView = ({ garments = [], setGarments }) => {
            <h1 style={{ margin: 0 }}>Catálogo de Diseños HQPDS</h1>
            <span style={{ fontSize: '0.8rem', background: 'var(--accent-soft)', color: 'var(--accent)', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>HENG QIANG</span>
         </div>
-        <button className="btn-primary" onClick={() => setIsModalOpen(true)}>+ Nuevo Diseño</button>
+        <button className="btn-primary" onClick={() => setEstaModalAbierto(true)}>+ Nuevo Diseño</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
-        {garments.map(garment => (
+        {prendas.map(prenda => (
           <div 
-            key={garment.id} 
+            key={prenda.id} 
             className="glass-panel" 
             style={{ 
               padding: '1.5rem', 
@@ -60,8 +60,8 @@ const GarmentsView = ({ garments = [], setGarments }) => {
               transition: 'transform 0.3s ease',
               cursor: 'pointer'
             }}
-            onMouseEnter={() => setHoveredGarment(garment.id)}
-            onMouseLeave={() => setHoveredGarment(null)}
+            onMouseEnter={() => setPrendaResaltada(prenda.id)}
+            onMouseLeave={() => setPrendaResaltada(null)}
           >
             <div style={{ 
               width: '100%', 
@@ -72,19 +72,19 @@ const GarmentsView = ({ garments = [], setGarments }) => {
               position: 'relative'
             }}>
               <img 
-                src={garment.image} 
-                alt={garment.name} 
+                src={prenda.image} 
+                alt={prenda.name} 
                 style={{ 
                   width: '100%', 
                   height: '100%', 
                   objectFit: 'cover',
                   transition: 'transform 0.5s ease',
-                  transform: hoveredGarment === garment.id ? 'scale(1.1)' : 'scale(1)'
+                  transform: prendaResaltada === prenda.id ? 'scale(1.1)' : 'scale(1)'
                 }}
               />
 
               {/* Zoom Overlay Localizado */}
-              {hoveredGarment === garment.id && (
+              {prendaResaltada === prenda.id && (
                 <div style={{
                   position: 'absolute',
                   top: '50%',
@@ -100,7 +100,7 @@ const GarmentsView = ({ garments = [], setGarments }) => {
                   pointerEvents: 'none'
                 }} className="animate-fade">
                    <img 
-                      src={garment.image} 
+                      src={prenda.image} 
                       alt="Zoom"
                       style={{ 
                         width: '100%', 
@@ -114,8 +114,8 @@ const GarmentsView = ({ garments = [], setGarments }) => {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-               <h3 style={{ margin: 0, color: 'var(--accent)', fontSize: '1.1rem' }}>{garment.name}</h3>
-               <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{garment.programFile}</span>
+               <h3 style={{ margin: 0, color: 'var(--accent)', fontSize: '1.1rem' }}>{prenda.name}</h3>
+               <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{prenda.programFile}</span>
             </div>
             
             <div style={{ 
@@ -127,24 +127,24 @@ const GarmentsView = ({ garments = [], setGarments }) => {
               padding: '1rem',
               borderRadius: '8px'
             }}>
-              <div><strong>Vueltas:</strong> {garment.notes.vueltas}</div>
-              <div><strong>Tensión:</strong> {garment.notes.tension}</div>
-              <div><strong>Hilo:</strong> {garment.notes.hilo}</div>
-              <div><strong>Aguja:</strong> {garment.notes.aguja}</div>
+              <div><strong>Vueltas:</strong> {prenda.notes.vueltas}</div>
+              <div><strong>Tensión:</strong> {prenda.notes.tension}</div>
+              <div><strong>Hilo:</strong> {prenda.notes.hilo}</div>
+              <div><strong>Aguja:</strong> {prenda.notes.aguja}</div>
             </div>
 
             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
               <button 
-                onClick={() => setSelectedGarment(garment)}
+                onClick={() => setPrendaSeleccionada(prenda)}
                 style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer' }}
               >
                 Ver Ficha
               </button>
               <button 
-                onClick={() => handleDownload(garment)}
+                onClick={() => manejarDescarga(prenda)}
                 style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', background: 'var(--accent)', border: 'none', color: 'white', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer' }}
               >
-                Descargar {garment.programFile.split('.').pop().toUpperCase()}
+                Descargar {prenda.programFile.split('.').pop().toUpperCase()}
               </button>
             </div>
           </div>
@@ -152,7 +152,7 @@ const GarmentsView = ({ garments = [], setGarments }) => {
       </div>
 
       {/* Modal Detalle (Ficha Técnica) */}
-      {selectedGarment && (
+      {prendaSeleccionada && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -160,27 +160,27 @@ const GarmentsView = ({ garments = [], setGarments }) => {
         }}>
           <div className="glass-panel" style={{ width: '800px', maxWidth: '90%', display: 'flex', overflow: 'hidden' }}>
             <div style={{ flex: 1, background: '#000' }}>
-              <img src={selectedGarment.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Large preview" />
+              <img src={prendaSeleccionada.image} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Previsualización Ampliada" />
             </div>
             <div style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column' }}>
-              <h2 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>Ficha Técnica: {selectedGarment.name}</h2>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Archivo: {selectedGarment.programFile}</p>
+              <h2 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>Ficha Técnica: {prendaSeleccionada.name}</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Archivo: {prendaSeleccionada.programFile}</p>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', flex: 1 }}>
                 <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
                    <strong>Especificaciones de Máquina:</strong>
                    <ul style={{ marginTop: '1rem', listStyle: 'none', padding: 0 }}>
-                      <li>⚡ Tensión: {selectedGarment.notes.tension}</li>
-                      <li>🔄 Vueltas: {selectedGarment.notes.vueltas}</li>
-                      <li>🧶 Hilo: {selectedGarment.notes.hilo}</li>
-                      <li>📍 Aguja/Galga: {selectedGarment.notes.aguja}</li>
+                      <li>⚡ Tensión: {prendaSeleccionada.notes.tension}</li>
+                      <li>🔄 Vueltas: {prendaSeleccionada.notes.vueltas}</li>
+                      <li>🧶 Hilo: {prendaSeleccionada.notes.hilo}</li>
+                      <li>📍 Aguja/Galga: {prendaSeleccionada.notes.aguja}</li>
                    </ul>
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                <button className="btn-primary" style={{ flex: 1 }} onClick={() => handleDownload(selectedGarment)}>Descargar Archivo</button>
-                <button className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setSelectedGarment(null)}>Cerrar</button>
+                <button className="btn-primary" style={{ flex: 1 }} onClick={() => manejarDescarga(prendaSeleccionada)}>Descargar Archivo</button>
+                <button className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setPrendaSeleccionada(null)}>Cerrar</button>
               </div>
             </div>
           </div>
@@ -188,7 +188,7 @@ const GarmentsView = ({ garments = [], setGarments }) => {
       )}
 
       {/* Modal para Agregar */}
-      {isModalOpen && (
+      {estaModalAbierto && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -196,10 +196,10 @@ const GarmentsView = ({ garments = [], setGarments }) => {
         }}>
           <div className="glass-panel" style={{ width: '450px', padding: '2rem' }}>
             <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Agregar Diseño Heng Qiang</h2>
-            <form onSubmit={handleAddGarment} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form onSubmit={manejarAgregarPrenda} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <input 
                 className="glass-input" placeholder="Nombre del diseño" required
-                value={newGarment.name} onChange={e => setNewGarment({...newGarment, name: e.target.value})}
+                value={nuevaPrenda.name} onChange={e => setNuevaPrenda({...nuevaPrenda, name: e.target.value})}
               />
               
               <div style={{ padding: '0.8rem', border: '1px dashed var(--glass-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
@@ -209,8 +209,8 @@ const GarmentsView = ({ garments = [], setGarments }) => {
                   accept=".hcd,.pat,.hqs"
                   style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
                   onChange={e => {
-                    const file = e.target.files[0];
-                    if (file) setNewGarment({...newGarment, programFile: file.name});
+                    const archivo = e.target.files[0];
+                    if (archivo) setNuevaPrenda({...nuevaPrenda, programFile: archivo.name});
                   }}
                 />
               </div>
@@ -222,13 +222,13 @@ const GarmentsView = ({ garments = [], setGarments }) => {
                   accept="image/*"
                   style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
                   onChange={e => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setNewGarment({...newGarment, image: reader.result});
+                    const archivo = e.target.files[0];
+                    if (archivo) {
+                      const lector = new FileReader();
+                      lector.onloadend = () => {
+                        setNuevaPrenda({...nuevaPrenda, image: lector.result});
                       };
-                      reader.readAsDataURL(file);
+                      lector.readAsDataURL(archivo);
                     }
                   }}
                 />
@@ -238,25 +238,25 @@ const GarmentsView = ({ garments = [], setGarments }) => {
 
                 <input 
                   className="glass-input" placeholder="Vueltas" type="number"
-                  value={newGarment.vueltas} onChange={e => setNewGarment({...newGarment, vueltas: e.target.value})}
+                  value={nuevaPrenda.vueltas} onChange={e => setNuevaPrenda({...nuevaPrenda, vueltas: e.target.value})}
                 />
                 <input 
                   className="glass-input" placeholder="Tensión"
-                  value={newGarment.tension} onChange={e => setNewGarment({...newGarment, tension: e.target.value})}
+                  value={nuevaPrenda.tension} onChange={e => setNuevaPrenda({...nuevaPrenda, tension: e.target.value})}
                 />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <input 
                   className="glass-input" placeholder="Tipo de Hilo"
-                  value={newGarment.hilo} onChange={e => setNewGarment({...newGarment, hilo: e.target.value})}
+                  value={nuevaPrenda.hilo} onChange={e => setNuevaPrenda({...nuevaPrenda, hilo: e.target.value})}
                 />
                 <input 
                   className="glass-input" placeholder="Galga / Aguja"
-                  value={newGarment.aguja} onChange={e => setNewGarment({...newGarment, aguja: e.target.value})}
+                  value={nuevaPrenda.aguja} onChange={e => setNuevaPrenda({...nuevaPrenda, aguja: e.target.value})}
                 />
               </div>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <button type="button" className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                <button type="button" className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEstaModalAbierto(false)}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar en Sistema</button>
               </div>
             </form>
@@ -268,5 +268,4 @@ const GarmentsView = ({ garments = [], setGarments }) => {
   );
 };
 
-export default GarmentsView;
-
+export default VistaPrendas;

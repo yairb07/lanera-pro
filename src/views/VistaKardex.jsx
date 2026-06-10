@@ -36,6 +36,7 @@ const S = {
     outline:"none",
     fontFamily:"monospace",
     boxSizing:"border-box",
+    colorScheme: "dark"
   },
   label: {
     fontSize:10,
@@ -70,7 +71,7 @@ const S = {
 };
 
 // ── Componente principal ─────────────────────────────────────────
-export default function KardexView() {
+export default function VistaKardex() {
   const [conos, setConos] = useState(() => {
     try {
       const saved = localStorage.getItem("lp_kardex_conos");

@@ -159,6 +159,7 @@ h1, h2, h3 {
   background: transparent;
   color: white;
   width: 100%;
+  color-scheme: dark; /* Force native dropdowns to be dark mode */
 }
 
 .glass-input:focus {
@@ -166,3 +167,10 @@ h1, h2, h3 {
   border-color: var(--accent);
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* Fix for options just in case */
+select option {
+  background-color: #1a1c23;
+  color: #F0EDE8;
+}
+

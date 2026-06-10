@@ -21,7 +21,7 @@ app.use(cookieParser());
 app.get('/api/health', async (_req, res, next) => {
   try {
     await pool.query('select 1');
-    res.json({ ok: true, service: 'lanera-pro-api' });
+    res.json({ ok: true, service: 'taller-textil-api' });
   } catch (error) {
     next(error);
   }
@@ -40,5 +40,5 @@ app.use((error, _req, res, next) => {
 });
 
 app.listen(config.port, () => {
-  console.log(`LaneraPro API escuchando en http://localhost:${config.port}`);
+  console.log(`Taller Textil API escuchando en http://localhost:${config.port}`);
 });

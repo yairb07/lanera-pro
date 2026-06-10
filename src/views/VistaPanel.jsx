@@ -1,16 +1,16 @@
 import { useState } from 'react';
 
-const DashboardView = ({ user, produccion = [], conos = [], setActiveTab }) => {
+const VistaPanel = ({ usuario, produccion = [], conos = [], setPestanaActiva }) => {
   // Estado de fecha seleccionada (por defecto hoy)
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date().toISOString().split('T')[0]);
 
   // Cálculos para Admin
   const conosCriticos = conos.filter(c => c.stock <= c.minimo).length;
   
   // Producción filtrada por la fecha seleccionada
-  // Convertimos selectedDate (YYYY-MM-DD) al formato local (D/M/YYYY) para comparar
-  // Nota: new Date(selectedDate + "T00:00:00") previene desfases de zona horaria
-  const fechaFiltroObj = new Date(selectedDate + "T00:00:00");
+  // Convertimos fechaSeleccionada (YYYY-MM-DD) al formato local (D/M/YYYY) para comparar
+  // Nota: new Date(fechaSeleccionada + "T00:00:00") previene desfases de zona horaria
+  const fechaFiltroObj = new Date(fechaSeleccionada + "T00:00:00");
   const fechaFiltroStr = fechaFiltroObj.toLocaleDateString("es-PE");
   
   const produccionFiltrada = produccion.filter(p => new Date(p.fecha).toLocaleDateString("es-PE") === fechaFiltroStr);
@@ -19,23 +19,30 @@ const DashboardView = ({ user, produccion = [], conos = [], setActiveTab }) => {
   // Últimas 4 actividades del día seleccionado
   const ultimasProducciones = [...produccionFiltrada].sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).slice(0, 4);
 
+  // Cálculos para Empleado
+  const empId = usuario.id || null;
+  const produccionEmpleado = produccionFiltrada.filter(p => p.empleadaId === empId);
+  const prendasEmpleado = produccionEmpleado.reduce((acc, p) => acc + p.cantidad, 0);
+  const gananciaEmpleado = produccionEmpleado.reduce((acc, p) => acc + (p.cantidad * (p.pagoPorPrenda || 1.5)), 0);
+
+
   return (
     <div className="animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '2rem', color: 'var(--text-light)' }}>
-            Bienvenido de vuelta, <span style={{ color: 'var(--accent)' }}>{user.name}</span>
+            Bienvenido de vuelta, <span style={{ color: 'var(--accent)' }}>{usuario.name || usuario.nombre}</span>
           </h1>
           <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem', fontSize: '0.95rem' }}>
-            {user.role === 'admin' ? 'Resumen general de tu taller y operaciones del día.' : 'Tus métricas de trabajo y tareas.'}
+            {usuario.role === 'admin' ? 'Resumen general de tu taller y operaciones del día.' : 'Tus métricas de trabajo y tareas.'}
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
           <span style={{ color: 'var(--text-muted)' }}>📅 Fecha:</span>
           <input 
             type="date" 
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+            value={fechaSeleccionada}
+            onChange={(e) => setFechaSeleccionada(e.target.value)}
             style={{ 
               background: 'transparent', border: 'none', color: 'var(--accent)', 
               outline: 'none', fontSize: '0.95rem', fontWeight: 'bold', 
@@ -46,12 +53,12 @@ const DashboardView = ({ user, produccion = [], conos = [], setActiveTab }) => {
       </div>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '1rem' }}>
-        {user.role === 'admin' ? (
+        {usuario.role === 'admin' || usuario.role === 'administrador' ? (
           <>
             <div 
               className="glass-panel hover-card" 
               style={{ padding: '1.5rem', borderLeft: '4px solid #27ae60', cursor: 'pointer', transition: 'transform 0.2s' }}
-              onClick={() => setActiveTab && setActiveTab('production')}
+              onClick={() => setPestanaActiva && setPestanaActiva('produccion')}
               onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
               onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
@@ -67,7 +74,7 @@ const DashboardView = ({ user, produccion = [], conos = [], setActiveTab }) => {
             <div 
               className="glass-panel hover-card" 
               style={{ padding: '1.5rem', borderLeft: `4px solid ${conosCriticos > 0 ? '#e74c3c' : '#3498db'}`, cursor: 'pointer', transition: 'transform 0.2s' }}
-              onClick={() => setActiveTab && setActiveTab('production')}
+              onClick={() => setPestanaActiva && setPestanaActiva('kardex')}
               onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
               onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
@@ -86,20 +93,20 @@ const DashboardView = ({ user, produccion = [], conos = [], setActiveTab }) => {
         ) : (
           <>
             <div className="glass-panel" style={{ padding: '2rem' }}>
-              <h4 style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Mis Tareas Hoy</h4>
-              <h2 style={{ fontSize: '2.5rem' }}>4</h2>
-              <p style={{ color: 'var(--accent)', fontSize: '0.9rem', marginTop: '0.5rem' }}>2 Urgentes</p>
+              <h4 style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Prendas Producidas Hoy</h4>
+              <h2 style={{ fontSize: '2.5rem' }}>{prendasEmpleado}</h2>
+              <p style={{ color: 'var(--accent)', fontSize: '0.9rem', marginTop: '0.5rem' }}>Unidades entregadas</p>
             </div>
             <div className="glass-panel" style={{ padding: '2rem' }}>
-              <h4 style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Mi Ganancia (Hoy)</h4>
-              <h2 style={{ fontSize: '2.5rem' }}>$85.50</h2>
-              <p style={{ color: '#27ae60', fontSize: '0.9rem', marginTop: '0.5rem' }}>Pago por destajo</p>
+              <h4 style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Mi Ganancia Estimada</h4>
+              <h2 style={{ fontSize: '2.5rem' }}>S/ {gananciaEmpleado.toFixed(2)}</h2>
+              <p style={{ color: '#27ae60', fontSize: '0.9rem', marginTop: '0.5rem' }}>Basado en destajo (S/1.50 c/u)</p>
             </div>
           </>
         )}
       </div>
 
-      {user.role === 'admin' && (
+      {(usuario.role === 'admin' || usuario.role === 'administrador') && (
         <div style={{ marginTop: '2.5rem' }}>
           <h3 style={{ color: 'var(--text-light)', marginBottom: '1rem', fontSize: '1.2rem' }}>Actividad en Planta ({fechaFiltroStr})</h3>
           <div className="glass-panel" style={{ padding: '1.5rem' }}>
@@ -135,4 +142,4 @@ const DashboardView = ({ user, produccion = [], conos = [], setActiveTab }) => {
   );
 };
 
-export default DashboardView;
+export default VistaPanel;

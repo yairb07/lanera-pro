@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 
-export const useAppData = () => {
+export const usarDatosApp = () => {
 
 
   const [conos, setConos] = useState(() => {
-    const saved = localStorage.getItem('lanera_conos');
+    const saved = localStorage.getItem('taller_conos');
     return saved ? JSON.parse(saved) : [
       { id: "C-001", color: "Azul Marino", material: "Lana", peso: 1000, stock: 15, minimo: 5, proveedor: "TexAndes", precio: 25 },
       { id: "C-002", color: "Rojo Carmín", material: "Algodón", peso: 1000, stock: 3, minimo: 5, proveedor: "Hilandería Sur", precio: 20 },
@@ -12,20 +12,20 @@ export const useAppData = () => {
   });
 
   const [produccion, setProduccion] = useState(() => {
-    const saved = localStorage.getItem('lanera_produccion');
+    const saved = localStorage.getItem('taller_produccion');
     return saved ? JSON.parse(saved) : [];
   });
 
   const [empleados, setEmpleados] = useState(() => {
-    const saved = localStorage.getItem('lanera_empleados');
+    const saved = localStorage.getItem('taller_empleados');
     return saved ? JSON.parse(saved) : [
       { id: "emp_1", nombre: "Maria Lopez", rol: "Tejedora", turno: "Mañana", pago: "destajo", prendas: 0, monto: 0, estado: "activo" },
       { id: "emp_2", nombre: "Juan Perez", rol: "Tejedora", turno: "Tarde", pago: "sueldo", prendas: 0, monto: 1200, estado: "activo" }
     ];
   });
 
-  const [garments, setGarments] = useState(() => {
-    const saved = localStorage.getItem('lanera_garments');
+  const [prendas, setPrendas] = useState(() => {
+    const saved = localStorage.getItem('taller_prendas');
     return saved ? JSON.parse(saved) : [
       {
         id: 1,
@@ -45,16 +45,16 @@ export const useAppData = () => {
   });
 
   useEffect(() => {
-    localStorage.setItem('lanera_conos', JSON.stringify(conos));
-    localStorage.setItem('lanera_produccion', JSON.stringify(produccion));
-    localStorage.setItem('lanera_empleados', JSON.stringify(empleados));
-    localStorage.setItem('lanera_garments', JSON.stringify(garments));
-  }, [conos, produccion, empleados, garments]);
+    localStorage.setItem('taller_conos', JSON.stringify(conos));
+    localStorage.setItem('taller_produccion', JSON.stringify(produccion));
+    localStorage.setItem('taller_empleados', JSON.stringify(empleados));
+    localStorage.setItem('taller_prendas', JSON.stringify(prendas));
+  }, [conos, produccion, empleados, prendas]);
 
   return { 
     conos, setConos, 
     produccion, setProduccion, 
     empleados, setEmpleados,
-    garments, setGarments
+    prendas, setPrendas
   };
 };
