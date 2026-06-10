@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export const usarDatosApp = () => {
+export const useDatosApp = () => {
 
 
   const [conos, setConos] = useState(() => {

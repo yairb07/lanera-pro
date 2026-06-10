@@ -63,8 +63,8 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
-        {(Array.isArray(empleados) ? empleados : []).filter(e => e).map(emp => (
-          <div key={emp.id || Math.random()} className="glass-panel" style={{ padding: '1.5rem', borderLeft: (emp.estado === 'activo' || emp.status === 'Activo') ? '4px solid #27ae60' : '4px solid #f1c40f' }}>
+        {(Array.isArray(empleados) ? empleados : []).filter(e => e).map((emp, index) => (
+          <div key={emp.id || index} className="glass-panel" style={{ padding: '1.5rem', borderLeft: (emp.estado === 'activo' || emp.status === 'Activo') ? '4px solid #27ae60' : '4px solid #f1c40f' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <h3 style={{ marginBottom: '0.2rem' }}>{emp.nombre}</h3>

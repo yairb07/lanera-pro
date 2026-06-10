@@ -10,8 +10,8 @@ import VistaProduccion from './views/VistaProduccion';
 import VistaKardex from './views/VistaKardex';
 
 // Hooks (Controladores)
-import { usarDatosApp } from './hooks/usarDatosApp';
-import { usarConsultaMedios } from './hooks/usarConsultaMedios';
+import { useDatosApp } from './hooks/useDatosApp';
+import { useConsultaMedios } from './hooks/useConsultaMedios';
 
 // Iconos
 const Iconos = {
@@ -36,9 +36,9 @@ function App() {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(max-width: 767px)').matches;
   });
-  const esMovil = usarConsultaMedios('(max-width: 767px)');
+  const esMovil = useConsultaMedios('(max-width: 767px)');
 
-  const { conos, setConos, produccion, setProduccion, empleados, setEmpleados, prendas, setPrendas } = usarDatosApp();
+  const { conos, setConos, produccion, setProduccion, empleados, setEmpleados, prendas, setPrendas } = useDatosApp();
 
   const mostrarNotificacion = (mensaje) => {
     setNotificacion(mensaje);
