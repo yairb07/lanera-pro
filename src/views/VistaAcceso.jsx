@@ -1,25 +1,20 @@
 import { useState } from 'react';
+import { api } from '../services/clienteApi';
 
 const VistaAcceso = ({ onLogin }) => {
   const [usuario, setUsuario] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState('');
 
-  // Usuarios de prueba para el taller
-  const USUARIOS_PRUEBA = [
-    { username: 'admin', password: '123', name: 'Becerra', role: 'admin' },
-    { username: 'juan', password: '123', name: 'Juan Perez', role: 'empleado', id: 'emp_1' },
-    { username: 'maria', password: '123', name: 'Maria Lopez', role: 'empleado', id: 'emp_2' }
-  ];
-
-  const manejarEnvio = (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
-    const usu = USUARIOS_PRUEBA.find(u => u.username === usuario && u.password === contrasena);
-    
-    if (usu) {
-      onLogin(usu);
-    } else {
-      setError('Credenciales incorrectas. Prueba con admin/123 o juan/123.');
+    try {
+      const res = await api.post('/api/auth/login', { username: usuario, password: contrasena });
+      if (res.user) {
+        onLogin(res.user);
+      }
+    } catch (err) {
+      setError(err.message || 'Credenciales incorrectas o error de conexión.');
     }
   };
 

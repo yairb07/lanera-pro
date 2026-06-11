@@ -49,6 +49,10 @@ app.use((error, _req, res, next) => {
   res.status(500).json({ message: 'Error interno del servidor.' });
 });
 
-app.listen(config.port, () => {
-  console.log(`LaneraPro API escuchando en http://localhost:${config.port}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(config.port, () => {
+    console.log(`LaneraPro API escuchando en http://localhost:${config.port}`);
+  });
+}
+
+export default app;

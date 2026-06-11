@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 
-function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
+function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar, usuarioActual }) {
+  const isEmployee = usuarioActual?.role === 'employee';
+  
   const [form, setForm] = useState({
-    empleadaId: "",
+    empleadaId: isEmployee ? usuarioActual.employeeId : "",
     conoId: "",
     prendaTipo: "",
     cantidad: 1,
@@ -41,7 +43,8 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
           <select
             value={form.empleadaId}
             onChange={e => setForm({...form, empleadaId:e.target.value})}
-            style={{ width:"100%", padding:"7px 9px", background:"rgba(255,255,255,0.04)", border:"0.5px solid rgba(255,255,255,0.1)", borderRadius:7, color:"#F0EDE8", fontSize:12, outline:"none" }}
+            disabled={isEmployee}
+            style={{ width:"100%", padding:"7px 9px", background:"rgba(255,255,255,0.04)", border:"0.5px solid rgba(255,255,255,0.1)", borderRadius:7, color:"#F0EDE8", fontSize:12, outline:"none", opacity: isEmployee ? 0.7 : 1 }}
           >
             <option style={{ background: '#1a1c23' }} value="">Seleccionar...</option>
             {empleados.map(e => <option style={{ background: '#1a1c23' }} key={e.id} value={e.id}>{e.nombre}</option>)}
@@ -131,7 +134,7 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar }) {
   );
 }
 
-const VistaProduccion = ({ conos = [], setConos, produccion = [], setProduccion, empleados = [], prendas = [] }) => {
+const VistaProduccion = ({ usuarioActual, conos = [], setConos, produccion = [], setProduccion, empleados = [], prendas = [] }) => {
   const catalogo = useMemo(() => 
     prendas.map(g => ({ tipo: g.name, gramaje: parseInt(g.notes?.vueltas) || 350 })), 
   [prendas]);
@@ -193,6 +196,7 @@ const VistaProduccion = ({ conos = [], setConos, produccion = [], setProduccion,
             catalogo={catalogo}
             empleados={empleados}
             onRegistrar={registrarProduccion}
+            usuarioActual={usuarioActual}
           />
 
           {/* Resumen del día */}

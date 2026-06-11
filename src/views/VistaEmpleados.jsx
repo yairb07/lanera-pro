@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { api } from '../services/clienteApi';
 
 const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
   const [tipoModal, setTipoModal] = useState(null); // 'asignar', 'progreso', 'nuevo'
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(null);
   
+  const [credencialesGeneradas, setCredencialesGeneradas] = useState(null);
   const [nuevoEmpleado, setNuevoEmpleado] = useState({
-    nombre: '', rol: 'Tejedora', turno: 'Mañana', pago: 'destajo'
+    nombre: '', dni: '', rol: 'Tejedora', turno: 'Mañana', pago: 'destajo'
   });
 
   const manejarAsignacion = (emp) => {
@@ -18,24 +20,49 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
     setTipoModal('progreso');
   };
 
-  const manejarAgregarEmpleado = (e) => {
+  const manejarAgregarEmpleado = async (e) => {
     e.preventDefault();
-    const empleado = {
-      id: `emp_${Date.now()}`,
-      nombre: nuevoEmpleado.nombre,
-      rol: nuevoEmpleado.rol,
-      turno: nuevoEmpleado.turno,
-      pago: nuevoEmpleado.pago,
-      prendas: 0,
-      monto: 0,
-      estado: 'activo',
-      tareas: 0
-    };
-    if (setEmpleados) {
-      setEmpleados([...empleados, empleado]);
+    if (!nuevoEmpleado.dni || nuevoEmpleado.dni.length < 8) {
+      alert("El DNI debe tener al menos 8 caracteres.");
+      return;
     }
-    setTipoModal(null);
-    setNuevoEmpleado({ nombre: '', rol: 'Tejedora', turno: 'Mañana', pago: 'destajo' });
+    try {
+      const data = await api.post('/api/empleados', {
+        full_name: nuevoEmpleado.nombre,
+        dni: nuevoEmpleado.dni,
+        job_role: nuevoEmpleado.rol,
+        shift: nuevoEmpleado.turno,
+        payment_type: nuevoEmpleado.pago,
+        base_amount: 0
+      });
+      
+      const empleadoMapeado = {
+        id: data.empleado.id,
+        nombre: data.empleado.full_name,
+        rol: data.empleado.job_role,
+        turno: data.empleado.shift,
+        pago: data.empleado.payment_type === 'salary' ? 'sueldo' : 'destajo',
+        monto: Number(data.empleado.base_amount),
+        estado: data.empleado.status === 'active' ? 'activo' : 'inactivo',
+        prendas: 0,
+        tareas: 0
+      };
+
+      if (setEmpleados) {
+        setEmpleados([...empleados, empleadoMapeado]);
+      }
+      
+      setCredencialesGeneradas({
+        usuario: data.credenciales.usuario,
+        password: data.credenciales.password,
+        nombre: data.empleado.full_name
+      });
+      
+      setTipoModal('credenciales');
+      setNuevoEmpleado({ nombre: '', dni: '', rol: 'Tejedora', turno: 'Mañana', pago: 'destajo' });
+    } catch (err) {
+      alert("Error al crear empleado: " + err.message);
+    }
   };
 
   const manejarAsignarTarea = (e) => {
@@ -153,6 +180,14 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
                 onChange={e => setNuevoEmpleado({...nuevoEmpleado, nombre: e.target.value})}
                 required 
               />
+              <input 
+                type="text" 
+                placeholder="DNI / Documento" 
+                className="glass-input" 
+                value={nuevoEmpleado.dni}
+                onChange={e => setNuevoEmpleado({...nuevoEmpleado, dni: e.target.value})}
+                required 
+              />
               <select className="glass-input" value={nuevoEmpleado.rol} onChange={e => setNuevoEmpleado({...nuevoEmpleado, rol: e.target.value})}>
                 <option value="Tejedora">Tejedora</option>
                 <option value="Remalladora">Remalladora</option>
@@ -173,6 +208,32 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
                 <button type="button" onClick={() => setTipoModal(null)} className="btn-primary" style={{ flex: 1, background: 'rgba(255,255,255,0.1)' }}>Cancelar</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {tipoModal === 'credenciales' && credencialesGeneradas && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
+          <div className="glass-panel" style={{ padding: '2.5rem', width: '400px', background: '#111', textAlign: 'center' }}>
+            <h2 style={{ color: '#27ae60', marginBottom: '1rem' }}>¡Empleado Creado!</h2>
+            <p style={{ color: 'var(--text-muted)' }}>Comparte estas credenciales con <strong>{credencialesGeneradas.nombre}</strong> para que ingrese al sistema.</p>
+            
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px', margin: '1.5rem 0', fontFamily: 'monospace', fontSize: '1.2rem' }}>
+              <div>Usuario: <strong style={{ color: 'var(--accent)' }}>{credencialesGeneradas.usuario}</strong></div>
+              <div style={{ marginTop: '0.5rem' }}>Clave: <strong style={{ color: 'var(--accent)' }}>{credencialesGeneradas.password}</strong></div>
+            </div>
+
+            <a 
+              href={`https://wa.me/?text=${encodeURIComponent(`Hola ${credencialesGeneradas.nombre}, estas son tus credenciales para el sistema del Taller Textil.\n\nUsuario: *${credencialesGeneradas.usuario}*\nContraseña: *${credencialesGeneradas.password}*\n\n¡Bienvenido!`)}`}
+              target="_blank" rel="noreferrer"
+              className="btn-primary" 
+              style={{ display: 'block', background: '#25D366', color: '#fff', textDecoration: 'none', padding: '1rem', fontWeight: 'bold' }}
+              onClick={() => setTipoModal(null)}
+            >
+              Enviar por WhatsApp
+            </a>
+            
+            <button onClick={() => setTipoModal(null)} className="btn-primary" style={{ marginTop: '1rem', width: '100%', background: 'transparent', border: '1px solid var(--glass-border)' }}>Cerrar</button>
           </div>
         </div>
       )}

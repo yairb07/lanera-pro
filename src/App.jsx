@@ -67,7 +67,7 @@ function App() {
       case 'panel': return <VistaPanel usuario={usuarioActual} produccion={produccion} conos={conos} setPestanaActiva={setPestanaActiva} />;
       case 'empleados': return <VistaEmpleados usuario={usuarioActual} empleados={empleados} setEmpleados={setEmpleados} />;
       case 'prendas': return <VistaPrendas prendas={prendas} setPrendas={setPrendas} />;
-      case 'produccion': return <VistaProduccion conos={conos} setConos={setConos} produccion={produccion} setProduccion={setProduccion} empleados={empleados} prendas={prendas} />;
+      case 'produccion': return <VistaProduccion usuarioActual={usuarioActual} conos={conos} setConos={setConos} produccion={produccion} setProduccion={setProduccion} empleados={empleados} prendas={prendas} />;
       case 'kardex': return <VistaKardex conos={conos} setConos={setConos} />;
       default: return <VistaPanel usuario={usuarioActual} produccion={produccion} conos={conos} setPestanaActiva={setPestanaActiva} />;
     }
@@ -118,20 +118,21 @@ function App() {
               <div className={`nav-item ${pestanaActiva === 'empleados' ? 'active' : ''}`} onClick={() => { setPestanaActiva('empleados'); if(esMovil) setBarraLateralColapsada(true); }}>
                 <Iconos.Usuarios /> {!barraLateralColapsada && <span className="nav-text">Empleados</span>}
               </div>
+              <div className={`nav-item ${pestanaActiva === 'prendas' ? 'active' : ''}`} onClick={() => { setPestanaActiva('prendas'); if(esMovil) setBarraLateralColapsada(true); }}>
+                <Iconos.Paquete /> {!barraLateralColapsada && <span className="nav-text">Prendas</span>}
+              </div>
             </>
           )}
-
-          <div className={`nav-item ${pestanaActiva === 'prendas' ? 'active' : ''}`} onClick={() => { setPestanaActiva('prendas'); if(esMovil) setBarraLateralColapsada(true); }}>
-            <Iconos.Paquete /> {!barraLateralColapsada && <span className="nav-text">Prendas</span>}
-          </div>
 
           <div className={`nav-item ${pestanaActiva === 'produccion' ? 'active' : ''}`} onClick={() => { setPestanaActiva('produccion'); if(esMovil) setBarraLateralColapsada(true); }}>
             <Iconos.Fabrica /> {!barraLateralColapsada && <span className="nav-text">Producción</span>}
           </div>
 
-          <div className={`nav-item ${pestanaActiva === 'kardex' ? 'active' : ''}`} onClick={() => { setPestanaActiva('kardex'); if(esMovil) setBarraLateralColapsada(true); }}>
-            <Iconos.Kardex /> {!barraLateralColapsada && <span className="nav-text">Kardex Conos</span>}
-          </div>
+          {usuarioActual.role === 'admin' && (
+            <div className={`nav-item ${pestanaActiva === 'kardex' ? 'active' : ''}`} onClick={() => { setPestanaActiva('kardex'); if(esMovil) setBarraLateralColapsada(true); }}>
+              <Iconos.Kardex /> {!barraLateralColapsada && <span className="nav-text">Kardex Conos</span>}
+            </div>
+          )}
         </div>
 
         <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)' }}>
