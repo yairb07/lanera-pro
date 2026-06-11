@@ -49,6 +49,12 @@ const VistaPrendas = ({ prendas = [], setPrendas }) => {
         <button className="btn-primary" onClick={() => setEstaModalAbierto(true)}>+ Nuevo Diseño</button>
       </div>
 
+      {prendas.length === 0 ? (
+        <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center' }}>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>No hay diseños registrados en el catálogo.</p>
+          <button className="btn-primary" onClick={() => setEstaModalAbierto(true)}>+ Agregar primer diseño</button>
+        </div>
+      ) : (
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
         {prendas.map(prenda => (
           <div 
@@ -150,6 +156,7 @@ const VistaPrendas = ({ prendas = [], setPrendas }) => {
           </div>
         ))}
       </div>
+      )}
 
       {/* Modal Detalle (Ficha Técnica) */}
       {prendaSeleccionada && (
