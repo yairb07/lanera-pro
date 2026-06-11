@@ -46,7 +46,7 @@ app.use((req, res) => {
 app.use((error, _req, res, next) => {
   void next;
   console.error(error);
-  res.status(500).json({ message: 'Error interno del servidor.' });
+  res.status(500).json({ message: 'Error interno del servidor.', detail: error.message });
 });
 
 if (process.env.NODE_ENV !== 'production') {
