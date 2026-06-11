@@ -17,7 +17,7 @@ const registroProduccionSchema = z.object({
 router.get('/', requireAuth, async (req, res, next) => {
   try {
     const result = await pool.query(
-      `SELECT p.*, e.full_name as empleada_nombre, g.name as prenda_nombre, c.color as cono_color
+      `SELECT p.*, e.full_name as empleado_nombre, g.name as prenda_nombre, c.color as cono_color
        FROM production_records p
        JOIN employees e ON p.employee_id = e.id
        JOIN garments g ON p.garment_id = g.id

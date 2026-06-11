@@ -21,7 +21,7 @@ const VistaPanel = ({ usuario, produccion = [], conos = [], setPestanaActiva }) 
 
   // Cálculos para Empleado
   const empId = usuario.id || null;
-  const produccionEmpleado = produccionFiltrada.filter(p => p.empleadaId === empId);
+  const produccionEmpleado = produccionFiltrada.filter(p => p.empleadoId === empId);
   const prendasEmpleado = produccionEmpleado.reduce((acc, p) => acc + p.cantidad, 0);
   const gananciaEmpleado = produccionEmpleado.reduce((acc, p) => acc + (p.cantidad * (p.pagoPorPrenda || 1.5)), 0);
 
@@ -122,7 +122,7 @@ const VistaPanel = ({ usuario, produccion = [], conos = [], setPestanaActiva }) 
                       </div>
                       <div>
                         <div style={{ fontWeight: '600', color: 'var(--text-light)' }}>{prod.prendaTipo}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Operaria ID: {prod.empleadaId} • Cono: {prod.conoId}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Operario ID: {prod.empleadoId} • Cono: {prod.conoId}</div>
                       </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>

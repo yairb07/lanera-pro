@@ -4,7 +4,7 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar, usuar
   const isEmployee = usuarioActual?.role === 'employee';
   
   const [form, setForm] = useState({
-    empleadaId: isEmployee ? usuarioActual.employeeId : "",
+    empleadoId: isEmployee ? usuarioActual.employeeId : "",
     conoId: "",
     prendaTipo: "",
     cantidad: 1,
@@ -37,12 +37,12 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar, usuar
       </div>
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-        {/* Empleada */}
+        {/* Empleado */}
         <div>
-          <label style={{ fontSize:10, color:"#666", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Empleada</label>
+          <label style={{ fontSize:10, color:"#666", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Empleado</label>
           <select
-            value={form.empleadaId}
-            onChange={e => setForm({...form, empleadaId:e.target.value})}
+            value={form.empleadoId}
+            onChange={e => setForm({...form, empleadoId:e.target.value})}
             disabled={isEmployee}
             style={{ width:"100%", padding:"7px 9px", background:"rgba(255,255,255,0.04)", border:"0.5px solid rgba(255,255,255,0.1)", borderRadius:7, color:"#F0EDE8", fontSize:12, outline:"none", opacity: isEmployee ? 0.7 : 1 }}
           >
@@ -113,12 +113,12 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar, usuar
 
       <button
         onClick={() => {
-          if (!form.empleadaId || !form.conoId || !form.prendaTipo) {
+          if (!form.empleadoId || !form.conoId || !form.prendaTipo) {
             alert("Completa todos los campos");
             return;
           }
           onRegistrar(form);
-          setForm({ empleadaId:"", conoId:"", prendaTipo:"", cantidad:1, gramajePorPrenda:0 });
+          setForm({ empleadoId:"", conoId:"", prendaTipo:"", cantidad:1, gramajePorPrenda:0 });
         }}
         style={{
           marginTop:14, padding:"8px 18px",
@@ -225,7 +225,7 @@ const VistaProduccion = ({ usuarioActual, conos = [], setConos, produccion = [],
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)' }}>
                   <th style={{ padding: '1rem 0.5rem' }}>Hora</th>
-                  <th style={{ padding: '1rem 0.5rem' }}>Empleada</th>
+                  <th style={{ padding: '1rem 0.5rem' }}>Empleado</th>
                   <th style={{ padding: '1rem 0.5rem' }}>Prenda</th>
                   <th style={{ padding: '1rem 0.5rem' }}>Cono Usado</th>
                   <th style={{ padding: '1rem 0.5rem' }}>Cant.</th>
@@ -241,7 +241,7 @@ const VistaProduccion = ({ usuarioActual, conos = [], setConos, produccion = [],
                   </tr>
                 ) : (
                   produccionHoy.map(p => {
-                    const emp = empleados.find(e => e.id === p.empleadaId);
+                    const emp = empleados.find(e => e.id === p.empleadoId);
                     const horaStr = new Date(p.fecha).toLocaleTimeString("es-PE", { hour: '2-digit', minute: '2-digit' });
                     return (
                       <tr key={p.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
