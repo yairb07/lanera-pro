@@ -1,15 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
+import { api } from "../services/clienteApi";
 
-// ── Datos iniciales (luego vendrán de Supabase) ──────────────────
 const MARCAS = ["Michell", "Inca Tops", "Incalpaca", "Otra"];
-
-const CONOS_INICIAL = [
-  { id:"MCH-001", marca:"Michell",   color:"Crema Natural", codigo:"CN-01", peso:"200g", proveedor:"Michell & Cía", stock:12 },
-  { id:"MCH-002", marca:"Michell",   color:"Gris Perla",    codigo:"GP-03", peso:"200g", proveedor:"Michell & Cía", stock:8  },
-  { id:"INC-001", marca:"Inca Tops", color:"Negro Natural",  codigo:"NN-07", peso:"250g", proveedor:"Inca Tops SAC", stock:3  },
-  { id:"INC-002", marca:"Inca Tops", color:"Marrón Café",   codigo:"MC-12", peso:"250g", proveedor:"Inca Tops SAC", stock:20 },
-];
 
 const MOVIMIENTO_TIPOS = {
   entrada: { label:"Entrada",  color:"#4CAF82", bg:"rgba(76,175,130,0.12)", icono:"↑" },
@@ -71,30 +64,34 @@ const S = {
 };
 
 // ── Componente principal ─────────────────────────────────────────
-export default function VistaKardex() {
-  const [conos, setConos] = useState(() => {
-    try {
-      const saved = localStorage.getItem("lp_kardex_conos");
-      return saved ? JSON.parse(saved) : CONOS_INICIAL;
-    } catch { return CONOS_INICIAL; }
-  });
+export default function VistaKardex({ conos = [] }) {
+  const [movimientos, setMovimientos] = useState([]);
 
-  const [movimientos, setMovimientos] = useState(() => {
-    try {
-      const saved = localStorage.getItem("lp_kardex_movimientos");
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
-  });
-
-  const guardarConos = (data) => {
-    setConos(data);
-    localStorage.setItem("lp_kardex_conos", JSON.stringify(data));
-  };
-
-  const guardarMovimientos = (data) => {
-    setMovimientos(data);
-    localStorage.setItem("lp_kardex_movimientos", JSON.stringify(data));
-  };
+  useEffect(() => {
+    const fetchMovimientos = async () => {
+      try {
+        const data = await api.get('/api/conos/movimientos');
+        const mapeados = data.map(m => ({
+          id: m.id,
+          fecha: new Date(m.created_at).toISOString().split("T")[0],
+          hora: new Date(m.created_at).toLocaleTimeString("es-PE", { hour:"2-digit", minute:"2-digit" }),
+          conoId: m.cone_id,
+          marca: m.brand,
+          color: m.color,
+          codigo: m.code,
+          tipo: m.movement_type,
+          cantidad: m.quantity_cones,
+          stockAnterior: m.stock_before,
+          stockNuevo: m.stock_after,
+          motivo: m.reason
+        }));
+        setMovimientos(mapeados);
+      } catch (err) {
+        console.error("Error al cargar movimientos:", err);
+      }
+    };
+    fetchMovimientos();
+  }, []);
 
   const [tab, setTab] = useState("stock"); 
   // tabs: "stock" | "movimiento" | "historial" | "nuevo_cono"
@@ -114,66 +111,43 @@ export default function VistaKardex() {
   });
 
   // ── Registrar movimiento ───────────────────────────────────────
-  const registrarMovimiento = () => {
+  const registrarMovimiento = async () => {
     if (!fMov.conoId || !fMov.cantidad) return;
 
-    const cono = conos.find(c => c.id === fMov.conoId);
-    if (!cono) return;
+    try {
+      await api.post(`/api/conos/${fMov.conoId}/movimiento`, {
+        tipo: fMov.tipo,
+        cantidad: Number(fMov.cantidad),
+        motivo: fMov.motivo
+      });
 
-    const cantidad = parseInt(fMov.cantidad);
-    let nuevoStock = cono.stock;
-
-    if (fMov.tipo === "entrada") nuevoStock += cantidad;
-    if (fMov.tipo === "salida")  nuevoStock = Math.max(0, nuevoStock - cantidad);
-    if (fMov.tipo === "ajuste")  nuevoStock = cantidad;
-
-    // Actualizar stock del cono
-    const nuevosConos = conos.map(c =>
-      c.id === fMov.conoId ? { ...c, stock: nuevoStock } : c
-    );
-    guardarConos(nuevosConos);
-
-    // Registrar en historial
-    const nuevoMov = {
-      id: Date.now(),
-      fecha: fMov.fecha,
-      hora: new Date().toLocaleTimeString("es-PE", { hour:"2-digit", minute:"2-digit" }),
-      conoId: fMov.conoId,
-      marca: cono.marca,
-      color: cono.color,
-      codigo: cono.codigo,
-      tipo: fMov.tipo,
-      cantidad,
-      stockAnterior: cono.stock,
-      stockNuevo: nuevoStock,
-      motivo: fMov.motivo || "Sin motivo registrado",
-    };
-
-    const nuevosMovs = [nuevoMov, ...movimientos];
-    guardarMovimientos(nuevosMovs);
-
-    // Reset form
-    setFMov({ conoId:"", tipo:"entrada", cantidad:1, motivo:"", fecha: new Date().toISOString().split("T")[0] });
-    setModalMov(false);
-
-    // Alerta si stock crítico
-    if (nuevoStock <= 3) {
-      alert(`⚠️ ALERTA: ${cono.marca} ${cono.color} quedó con solo ${nuevoStock} conos`);
+      // Refetch conos and movimientos (For simplicity we'll just reload the page or trigger a re-render in production, but let's just alert for now)
+      alert("Movimiento registrado con éxito. Recarga la página para ver los cambios.");
+      setFMov({ conoId:"", tipo:"entrada", cantidad:1, motivo:"", fecha: new Date().toISOString().split("T")[0] });
+      setModalMov(false);
+    } catch (err) {
+      alert("Error al registrar: " + (err.mensaje || err.message));
     }
   };
 
   // ── Agregar nuevo cono ─────────────────────────────────────────
-  const agregarCono = () => {
+  const agregarCono = async () => {
     if (!fCono.color || !fCono.codigo) return;
-    const nuevo = {
-      ...fCono,
-      id: `${fCono.marca.slice(0,3).toUpperCase()}-${Date.now()}`,
-      stock: parseInt(fCono.stock) || 0,
-    };
-    const nuevosConos = [...conos, nuevo];
-    guardarConos(nuevosConos);
-    setFCono({ marca:"Michell", color:"", codigo:"", peso:"200g", proveedor:"", stock:0 });
-    setModalCono(false);
+    try {
+      await api.post('/api/conos', {
+        code: fCono.codigo,
+        brand: fCono.marca,
+        color: fCono.color,
+        weight_grams: parseInt(fCono.peso) || 200,
+        stock_cones: parseInt(fCono.stock) || 0,
+        supplier: fCono.proveedor
+      });
+      alert("Cono creado con éxito. Recarga la página para verlo.");
+      setFCono({ marca:"Michell", color:"", codigo:"", peso:"200g", proveedor:"", stock:0 });
+      setModalCono(false);
+    } catch(err) {
+      alert("Error al crear cono: " + err.message);
+    }
   };
 
   // ── Exportar a Excel ─────────────────────────────────────────

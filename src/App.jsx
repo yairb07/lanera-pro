@@ -68,7 +68,7 @@ function App() {
       case 'empleados': return <VistaEmpleados usuario={usuarioActual} empleados={empleados} setEmpleados={setEmpleados} />;
       case 'prendas': return <VistaPrendas prendas={prendas} setPrendas={setPrendas} />;
       case 'produccion': return <VistaProduccion conos={conos} setConos={setConos} produccion={produccion} setProduccion={setProduccion} empleados={empleados} prendas={prendas} />;
-      case 'kardex': return <VistaKardex />;
+      case 'kardex': return <VistaKardex conos={conos} setConos={setConos} />;
       default: return <VistaPanel usuario={usuarioActual} produccion={produccion} conos={conos} setPestanaActiva={setPestanaActiva} />;
     }
   };

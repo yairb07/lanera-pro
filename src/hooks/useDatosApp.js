@@ -1,60 +1,84 @@
 import { useState, useEffect } from 'react';
+import { api } from '../services/clienteApi';
 
 export const useDatosApp = () => {
-
-
-  const [conos, setConos] = useState(() => {
-    const saved = localStorage.getItem('taller_conos');
-    return saved ? JSON.parse(saved) : [
-      { id: "C-001", color: "Azul Marino", material: "Lana", peso: 1000, stock: 15, minimo: 5, proveedor: "TexAndes", precio: 25 },
-      { id: "C-002", color: "Rojo Carmín", material: "Algodón", peso: 1000, stock: 3, minimo: 5, proveedor: "Hilandería Sur", precio: 20 },
-    ];
-  });
-
-  const [produccion, setProduccion] = useState(() => {
-    const saved = localStorage.getItem('taller_produccion');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [empleados, setEmpleados] = useState(() => {
-    const saved = localStorage.getItem('taller_empleados');
-    return saved ? JSON.parse(saved) : [
-      { id: "emp_1", nombre: "Maria Lopez", rol: "Tejedora", turno: "Mañana", pago: "destajo", prendas: 0, monto: 0, estado: "activo" },
-      { id: "emp_2", nombre: "Juan Perez", rol: "Tejedora", turno: "Tarde", pago: "sueldo", prendas: 0, monto: 1200, estado: "activo" }
-    ];
-  });
-
-  const [prendas, setPrendas] = useState(() => {
-    const saved = localStorage.getItem('taller_prendas');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 1,
-        name: "Suéter Cuello en V - Colección Invierno",
-        image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1072&auto=format&fit=crop",
-        programFile: "sueter_v_v1.hcd",
-        notes: { vueltas: 450, tension: "7.2", hilo: "Lana Merino 2/28", aguja: "12G" }
-      },
-      {
-        id: 2,
-        name: "Cardigan Trenzado - Mujer",
-        image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=1170&auto=format&fit=crop",
-        programFile: "cardigan_trenza.hcd",
-        notes: { vueltas: 680, tension: "6.5", hilo: "Algodón Peinado", aguja: "10G" }
-      }
-    ];
-  });
+  const [conos, setConos] = useState([]);
+  const [produccion, setProduccion] = useState([]);
+  const [empleados, setEmpleados] = useState([]);
+  const [prendas, setPrendas] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem('taller_conos', JSON.stringify(conos));
-    localStorage.setItem('taller_produccion', JSON.stringify(produccion));
-    localStorage.setItem('taller_empleados', JSON.stringify(empleados));
-    localStorage.setItem('taller_prendas', JSON.stringify(prendas));
-  }, [conos, produccion, empleados, prendas]);
+    const fetchData = async () => {
+      try {
+        const empData = await api.get('/api/empleados');
+        const conosData = await api.get('/api/conos');
+        const prodData = await api.get('/api/produccion').catch(() => []);
+        
+        // Mapeo de Empleados (Backend snake_case -> Frontend camelCase)
+        const mappedEmpleados = empData.map(e => ({
+          id: e.id,
+          nombre: e.full_name,
+          rol: e.job_role,
+          turno: e.shift,
+          pago: e.payment_type === 'salary' ? 'sueldo' : 'destajo',
+          monto: Number(e.base_amount),
+          estado: e.status === 'active' ? 'activo' : 'inactivo',
+          prendas: e.total_prendas || 0,
+          tareas: e.active_tasks || 0
+        }));
+
+        // Mapeo de Conos
+        const mappedConos = conosData.map(c => ({
+          id: c.id,
+          codigo: c.code,
+          marca: c.brand || 'Desconocida',
+          color: c.color,
+          material: c.material || 'Hilo',
+          peso: c.weight_grams + 'g',
+          pesoGramos: c.weight_grams,
+          stock: c.stock_cones,
+          minimo: c.min_stock_cones,
+          proveedor: c.supplier || '',
+          precio: c.unit_price
+        }));
+
+        // Prendas fallback
+        setPrendas([
+          { id: 1, name: "Suéter Cuello en V - Colección Invierno", image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1072&auto=format&fit=crop", programFile: "sueter_v_v1.hcd", notes: { vueltas: 450, tension: "7.2", hilo: "Lana Merino 2/28", aguja: "12G" } },
+          { id: 2, name: "Cardigan Trenzado - Mujer", image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=1170&auto=format&fit=crop", programFile: "cardigan_trenza.hcd", notes: { vueltas: 680, tension: "6.5", hilo: "Algodón Peinado", aguja: "10G" } }
+        ]);
+
+        setEmpleados(mappedEmpleados);
+        setConos(mappedConos);
+        
+        if (Array.isArray(prodData)) {
+          setProduccion(prodData.map(p => ({
+            id: p.id,
+            empleadoId: p.employee_id,
+            prendaTipo: p.garment_type || 'Desconocido',
+            conoUsadoId: p.cone_id,
+            cantidad: p.quantity,
+            gramaje: p.weight_per_garment,
+            fecha: p.created_at
+          })));
+        }
+
+      } catch (error) {
+        console.error("Error cargando datos desde la API remota:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   return { 
     conos, setConos, 
     produccion, setProduccion, 
     empleados, setEmpleados,
-    prendas, setPrendas
+    prendas, setPrendas,
+    loading
   };
 };
