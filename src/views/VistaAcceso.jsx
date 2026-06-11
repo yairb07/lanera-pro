@@ -20,6 +20,7 @@ const VistaAcceso = ({ onLogin }) => {
     }
   };
 
+  return (
     <div style={{
       height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
       backgroundColor: '#f4f6f8', fontFamily: 'Arial, sans-serif'
@@ -114,5 +115,6 @@ const VistaAcceso = ({ onLogin }) => {
     </div>
   );
 };
+
 
 export default VistaAcceso;

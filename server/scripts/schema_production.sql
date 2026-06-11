@@ -100,7 +100,7 @@ CREATE TABLE inventory_movements (
 INSERT INTO app_users (username, password_hash, full_name, role, is_active)
 VALUES (
   'flor.cholan', 
-  '$2b$10$CaNvrC0OtyZ40iGx9oDAd.BLJorwZass7aOdHJqK/yATrwVSVJt5u', 
+  '$2b$12$QYIqIR0zomuCE/8Qf276p.4WRrelD9uV6hOTNpguah0fSRJtzk96G', 
   'Flor Cholan', 
   'admin', 
   true

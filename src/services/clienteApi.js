@@ -28,6 +28,10 @@ export async function peticionApi(ruta, opciones = {}) {
     throw new ErrorApi(cargaDatos?.message || 'Error de API.', respuesta.status, cargaDatos);
   }
 
+  if (!esJson) {
+    throw new ErrorApi('La API no devolvio JSON. ¿Esta corriendo el backend (npm run server)?', respuesta.status);
+  }
+
   return cargaDatos;
 }
 

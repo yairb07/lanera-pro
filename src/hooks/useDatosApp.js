@@ -11,12 +11,12 @@ export const useDatosApp = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const empData = await api.get('/api/empleados');
-        const conosData = await api.get('/api/conos');
+        const empData = await api.get('/api/empleados').catch(() => []);
+        const conosData = await api.get('/api/conos').catch(() => []);
         const prodData = await api.get('/api/produccion').catch(() => []);
         
         // Mapeo de Empleados (Backend snake_case -> Frontend camelCase)
-        const mappedEmpleados = empData.map(e => ({
+        const mappedEmpleados = (Array.isArray(empData) ? empData : []).map(e => ({
           id: e.id,
           nombre: e.full_name,
           rol: e.job_role,
@@ -29,7 +29,7 @@ export const useDatosApp = () => {
         }));
 
         // Mapeo de Conos
-        const mappedConos = conosData.map(c => ({
+        const mappedConos = (Array.isArray(conosData) ? conosData : []).map(c => ({
           id: c.id,
           codigo: c.code,
           marca: c.brand || 'Desconocida',
