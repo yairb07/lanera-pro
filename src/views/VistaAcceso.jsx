@@ -4,7 +4,9 @@ import { api } from '../services/clienteApi';
 const VistaAcceso = ({ onLogin }) => {
   const [usuario, setUsuario] = useState('');
   const [contrasena, setContrasena] = useState('');
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [error, setError] = useState('');
+  const [mostrarAyuda, setMostrarAyuda] = useState(false);
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
@@ -45,17 +47,30 @@ const VistaAcceso = ({ onLogin }) => {
             />
           </div>
           
-          <div style={{ textAlign: 'left' }}>
+          <div style={{ textAlign: 'left', position: 'relative' }}>
             <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>Contraseña</label>
-            <input 
-              type="password" 
-              className="glass-input" 
-              style={{ marginTop: '0.4rem' }}
-              placeholder="••••••••"
-              value={contrasena}
-              onChange={(e) => setContrasena(e.target.value)}
-              required
-            />
+            <div style={{ position: 'relative', marginTop: '0.4rem' }}>
+              <input 
+                type={mostrarContrasena ? 'text' : 'password'} 
+                className="glass-input" 
+                style={{ width: '100%', paddingRight: '2.5rem', boxSizing: 'border-box' }}
+                placeholder="••••••••"
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+                required
+              />
+              <button 
+                type="button"
+                onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                style={{ 
+                  position: 'absolute', right: '0.8rem', top: '50%', transform: 'translateY(-50%)', 
+                  background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer',
+                  fontSize: '1.2rem', padding: 0
+                }}
+              >
+                {mostrarContrasena ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
           </div>
 
           {error && <p style={{ color: '#e74c3c', fontSize: '0.8rem' }}>{error}</p>}
@@ -65,10 +80,27 @@ const VistaAcceso = ({ onLogin }) => {
           </button>
         </form>
 
-        <div style={{ marginTop: '2rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          ¿Olvidó su contraseña? Contacte al administrador.
+        <div 
+          onClick={() => setMostrarAyuda(true)}
+          style={{ marginTop: '2rem', fontSize: '0.85rem', color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline' }}
+        >
+          ¿Olvidó su contraseña?
         </div>
       </div>
+
+      {mostrarAyuda && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
+          <div className="glass-panel" style={{ padding: '2.5rem', width: '400px', background: '#111', textAlign: 'center' }}>
+            <h2 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>Recuperación de Acceso</h2>
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>
+              Por motivos de seguridad, las contraseñas son tu número de <strong>DNI</strong>. 
+              <br /><br />
+              Si tienes problemas para ingresar, comunícate con la <strong>Administradora del Taller</strong> para que regenere tus accesos y te los reenvíe por WhatsApp.
+            </p>
+            <button onClick={() => setMostrarAyuda(false)} className="btn-primary" style={{ marginTop: '1.5rem', width: '100%' }}>Entendido</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

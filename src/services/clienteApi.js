@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
+
 
 export class ErrorApi extends Error {
   constructor(mensaje, estado, detalles) {
@@ -10,9 +10,7 @@ export class ErrorApi extends Error {
 }
 
 export async function peticionApi(ruta, opciones = {}) {
-  if (!API_URL) {
-    throw new ErrorApi('VITE_API_URL no esta configurado.', 500);
-  }
+  const API_URL = import.meta.env.VITE_API_URL || '';
 
   const respuesta = await fetch(`${API_URL}${ruta}`, {
     credentials: 'include',
