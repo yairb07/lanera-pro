@@ -6,6 +6,7 @@ export const useDatosApp = () => {
   const [produccion, setProduccion] = useState([]);
   const [empleados, setEmpleados] = useState([]);
   const [prendas, setPrendas] = useState([]);
+  const [categoriasPrendas, setCategoriasPrendas] = useState(['General']);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,6 +15,8 @@ export const useDatosApp = () => {
         const empData = await api.get('/api/empleados').catch(() => []);
         const conosData = await api.get('/api/conos').catch(() => []);
         const prodData = await api.get('/api/produccion').catch(() => []);
+        const prendasData = await api.get('/api/prendas').catch(() => []);
+        const categoriasData = await api.get('/api/prendas/categorias').catch(() => []);
         
         // Mapeo de Empleados (Backend snake_case -> Frontend camelCase)
         const mappedEmpleados = (Array.isArray(empData) ? empData : []).map(e => ({
@@ -42,9 +45,32 @@ export const useDatosApp = () => {
           proveedor: c.supplier || '',
           precio: c.unit_price
         }));
+        
+        // Mapeo de Categorías
+        const mappedCats = (Array.isArray(categoriasData) ? categoriasData : []).map(c => c.name);
+        if(mappedCats.length === 0) mappedCats.push('General');
+
+        // Mapeo de Prendas
+        const mappedPrendas = (Array.isArray(prendasData) ? prendasData : []).map(p => ({
+          id: p.id,
+          name: p.name,
+          category: p.category_name || 'General',
+          image: p.image_url || "https://images.unsplash.com/photo-1434031219129-14e5c876f628?q=80&w=1170&auto=format&fit=crop",
+          programFile: p.file_program || "diseño_heng_qiang.hcd",
+          isFavorite: p.is_favorite || false,
+          createdAt: p.created_at || new Date().toISOString(),
+          notes: {
+            vueltas: p.laps,
+            tension: p.tension,
+            hilo: p.yarn_type,
+            aguja: p.needle
+          }
+        }));
 
         setEmpleados(mappedEmpleados);
         setConos(mappedConos);
+        setCategoriasPrendas(mappedCats);
+        setPrendas(mappedPrendas);
         
         if (Array.isArray(prodData)) {
           setProduccion(prodData.map(p => ({
@@ -73,6 +99,7 @@ export const useDatosApp = () => {
     produccion, setProduccion, 
     empleados, setEmpleados,
     prendas, setPrendas,
+    categoriasPrendas, setCategoriasPrendas,
     loading
   };
 };

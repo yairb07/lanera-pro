@@ -100,7 +100,7 @@ const VistaPanel = ({ usuario, produccion = [], conos = [], setPestanaActiva }) 
             <div className="glass-panel" style={{ padding: '2rem' }}>
               <h4 style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Mi Ganancia Estimada</h4>
               <h2 style={{ fontSize: '2.5rem' }}>S/ {gananciaEmpleado.toFixed(2)}</h2>
-              <p style={{ color: '#27ae60', fontSize: '0.9rem', marginTop: '0.5rem' }}>Basado en destajo (S/1.50 c/u)</p>
+              <p style={{ color: '#27ae60', fontSize: '0.9rem', marginTop: '0.5rem' }}>Basado en destajo </p>
             </div>
           </>
         )}

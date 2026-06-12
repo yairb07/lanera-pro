@@ -91,7 +91,7 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
         {(Array.isArray(empleados) ? empleados : []).filter(e => e).map((emp, index) => (
-          <div key={emp.id || index} className="glass-panel" style={{ padding: '1.5rem', borderLeft: (emp.estado === 'activo' || emp.status === 'Activo') ? '4px solid #27ae60' : '4px solid #f1c40f' }}>
+          <div key={emp.id || index} className="glass-panel" style={{ padding: '1.5rem', borderLeft: (emp.estado === 'activo' || emp.status === 'Activo') ? '4px solid var(--accent)' : '4px solid #f1c40f' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <h3 style={{ marginBottom: '0.2rem' }}>{emp.nombre}</h3>
@@ -107,7 +107,7 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Producción Registrada</span>
-                <strong style={{ color: '#27ae60' }}>{emp.prendas || 0} prendas</strong>
+                <strong style={{ color: 'var(--accent)' }}>{emp.prendas || 0} prendas</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Ganancia Mes ({emp.pago})</span>
@@ -124,10 +124,10 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
       </div>
 
       {tipoModal === 'asignar' && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
-          <div className="glass-panel" style={{ padding: '2rem', width: '400px', background: '#111' }}>
-            <h3>Asignar Tarea a {empleadoSeleccionado.nombre}</h3>
-            <form style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={manejarAsignarTarea}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '4rem 1rem' }}>
+          <div className="glass-panel" style={{ padding: '2rem', width: '450px', flexShrink: 0 }}>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Asignar Tarea a {empleadoSeleccionado.nombre}</h2>
+            <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={manejarAsignarTarea}>
               <select className="glass-input">
                 <option>Seleccionar tarea de produccion...</option>
                 <option>Tejido de chompas</option>
@@ -135,9 +135,9 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
               </select>
               <input type="number" placeholder="Cantidad de prendas" className="glass-input" required />
               <input type="date" className="glass-input" required />
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <button type="button" onClick={() => setTipoModal(null)} className="nav-item" style={{ flex: 1, justifyContent: 'center' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Confirmar</button>
-                <button type="button" onClick={() => setTipoModal(null)} className="btn-primary" style={{ flex: 1, background: 'rgba(255,255,255,0.1)' }}>Cancelar</button>
               </div>
             </form>
           </div>
@@ -145,10 +145,10 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
       )}
 
       {tipoModal === 'progreso' && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
-          <div className="glass-panel" style={{ padding: '2rem', width: '500px', background: '#111' }}>
-            <h3>Avances de {empleadoSeleccionado.nombre}</h3>
-            <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '4rem 1rem' }}>
+          <div className="glass-panel" style={{ padding: '2rem', width: '500px', flexShrink: 0 }}>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Avances de {empleadoSeleccionado.nombre}</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {[1, 2].map(i => (
                 <div key={i} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between' }}>
                   <div>
@@ -156,22 +156,22 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Terminado: {i*5} de 20 unidades</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ color: '#27ae60', fontWeight: 'bold' }}>+${(i*45).toFixed(2)}</div>
-                    <div style={{ fontSize: '0.7rem' }}>Pago pendiente</div>
+                    <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>+${(i*45).toFixed(2)}</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Pago pendiente</div>
                   </div>
                 </div>
               ))}
-              <button onClick={() => setTipoModal(null)} className="btn-primary" style={{ marginTop: '1rem' }}>Cerrar</button>
+              <button onClick={() => setTipoModal(null)} className="btn-primary" style={{ marginTop: '0.5rem' }}>Cerrar</button>
             </div>
           </div>
         </div>
       )}
 
       {tipoModal === 'nuevo' && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
-          <div className="glass-panel" style={{ padding: '2rem', width: '400px', background: '#111' }}>
-            <h3>Nuevo Empleado</h3>
-            <form style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={manejarAgregarEmpleado}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '4rem 1rem' }}>
+          <div className="glass-panel" style={{ padding: '2rem', width: '450px', flexShrink: 0 }}>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Nuevo Empleado</h2>
+            <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={manejarAgregarEmpleado}>
               <input 
                 type="text" 
                 placeholder="Nombre completo" 
@@ -203,9 +203,9 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
                 <option value="destajo">Pago a Destajo</option>
                 <option value="sueldo">Sueldo Fijo</option>
               </select>
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <button type="button" onClick={() => setTipoModal(null)} className="nav-item" style={{ flex: 1, justifyContent: 'center' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar</button>
-                <button type="button" onClick={() => setTipoModal(null)} className="btn-primary" style={{ flex: 1, background: 'rgba(255,255,255,0.1)' }}>Cancelar</button>
               </div>
             </form>
           </div>
@@ -213,9 +213,9 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
       )}
 
       {tipoModal === 'credenciales' && credencialesGeneradas && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
-          <div className="glass-panel" style={{ padding: '2.5rem', width: '400px', background: '#111', textAlign: 'center' }}>
-            <h2 style={{ color: '#27ae60', marginBottom: '1rem' }}>¡Empleado Creado!</h2>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '4rem 1rem' }}>
+          <div className="glass-panel" style={{ padding: '2.5rem', width: '450px', textAlign: 'center', flexShrink: 0 }}>
+            <h2 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>Empleado Creado</h2>
             <p style={{ color: 'var(--text-muted)' }}>Comparte estas credenciales con <strong>{credencialesGeneradas.nombre}</strong> para que ingrese al sistema.</p>
             
             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '8px', margin: '1.5rem 0', fontFamily: 'monospace', fontSize: '1.2rem' }}>

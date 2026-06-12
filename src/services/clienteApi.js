@@ -41,4 +41,9 @@ export const api = {
   put: (ruta, cuerpo) => peticionApi(ruta, { method: 'PUT', body: JSON.stringify(cuerpo) }),
   patch: (ruta, cuerpo) => peticionApi(ruta, { method: 'PATCH', body: JSON.stringify(cuerpo) }),
   delete: (ruta) => peticionApi(ruta, { method: 'DELETE' }),
+  cambiarContrasena: (oldPassword, newPassword) =>
+    peticionApi('/api/auth/password', {
+      method: 'POST',
+      body: JSON.stringify({ oldPassword, newPassword }),
+    }),
 };

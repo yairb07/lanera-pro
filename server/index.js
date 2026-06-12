@@ -7,9 +7,10 @@ import { pool } from './db.js';
 
 // Rutas importadas
 import authRoutes from './routes/auth.js';
-import empleadosRoutes from './routes/empleados.js'; // Nuevas
-import conosRoutes from './routes/conos.js';         // Nuevas
-import produccionRoutes from './routes/produccion.js'; // Nuevas
+import empleadosRoutes from './routes/empleados.js';
+import conosRoutes from './routes/conos.js';
+import produccionRoutes from './routes/produccion.js';
+import prendasRoutes from './routes/prendas.js'; // Nuevas
 
 assertConfig();
 
@@ -35,9 +36,10 @@ app.get('/api/health', async (_req, res, next) => {
 
 // Declaración de módulos de la API
 app.use('/api/auth', authRoutes);
-app.use('/api/empleados', empleadosRoutes);   // Conectado con Postgres con éxito
-app.use('/api/conos', conosRoutes);           // Conectado con Postgres con éxito
-app.use('/api/produccion', produccionRoutes);   // Conectado con Postgres con éxito
+app.use('/api/empleados', empleadosRoutes);
+app.use('/api/conos', conosRoutes);
+app.use('/api/produccion', produccionRoutes);
+app.use('/api/prendas', prendasRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: `Ruta no encontrada: ${req.method} ${req.path}` });

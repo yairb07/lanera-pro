@@ -44,10 +44,10 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar, usuar
             value={form.empleadoId}
             onChange={e => setForm({...form, empleadoId:e.target.value})}
             disabled={isEmployee}
-            style={{ width:"100%", padding:"7px 9px", background:"rgba(255,255,255,0.04)", border:"0.5px solid rgba(255,255,255,0.1)", borderRadius:7, color:"#F0EDE8", fontSize:12, outline:"none", opacity: isEmployee ? 0.7 : 1 }}
+            style={{ width:"100%", padding:"7px 9px", background:"var(--glass-bg)", border:"1px solid var(--glass-border)", borderRadius:7, color:"var(--text-main)", fontSize:12, outline:"none" }}
           >
-            <option style={{ background: '#1a1c23' }} value="">Seleccionar...</option>
-            {empleados.map(e => <option style={{ background: '#1a1c23' }} key={e.id} value={e.id}>{e.nombre}</option>)}
+            <option style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }} value="">Seleccionar...</option>
+            {empleados.map(e => <option style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }} key={e.id} value={e.id}>{e.nombre}</option>)}
           </select>
         </div>
 
@@ -57,10 +57,10 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar, usuar
           <select
             value={form.prendaTipo}
             onChange={handlePrendaChange}
-            style={{ width:"100%", padding:"7px 9px", background:"rgba(255,255,255,0.04)", border:"0.5px solid rgba(255,255,255,0.1)", borderRadius:7, color:"#F0EDE8", fontSize:12, outline:"none" }}
+            style={{ width:"100%", padding:"7px 9px", background:"var(--glass-bg)", border:"1px solid var(--glass-border)", borderRadius:7, color:"var(--text-main)", fontSize:12, outline:"none" }}
           >
-            <option style={{ background: '#1a1c23' }} value="">Seleccionar...</option>
-            {catalogo.map(t => <option style={{ background: '#1a1c23' }} key={t.tipo} value={t.tipo}>{t.tipo}</option>)}
+            <option style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }} value="">Seleccionar...</option>
+            {catalogo.map(t => <option style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }} key={t.tipo} value={t.tipo}>{t.tipo}</option>)}
           </select>
         </div>
 
@@ -70,11 +70,11 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar, usuar
           <select
             value={form.conoId}
             onChange={e => setForm({...form, conoId:e.target.value})}
-            style={{ width:"100%", padding:"7px 9px", background:"rgba(255,255,255,0.04)", border:"0.5px solid rgba(255,255,255,0.1)", borderRadius:7, color:"#F0EDE8", fontSize:12, outline:"none" }}
+            style={{ width:"100%", padding:"7px 9px", background:"var(--glass-bg)", border:"1px solid var(--glass-border)", borderRadius:7, color:"var(--text-main)", fontSize:12, outline:"none" }}
           >
-            <option style={{ background: '#1a1c23' }} value="">Seleccionar...</option>
+            <option style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }} value="">Seleccionar...</option>
             {conos.map(c => (
-              <option style={{ background: '#1a1c23' }} key={c.id} value={c.id}>
+              <option style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }} key={c.id} value={c.id}>
                 {c.id} — {c.color} ({c.stock} disponibles)
               </option>
             ))}
@@ -88,7 +88,7 @@ function FormRegistroProduccion({ conos, catalogo, empleados, onRegistrar, usuar
             type="number" min="1"
             value={form.cantidad}
             onChange={e => setForm({...form, cantidad:parseInt(e.target.value)||1})}
-            style={{ width:"100%", padding:"7px 9px", background:"rgba(255,255,255,0.04)", border:"0.5px solid rgba(255,255,255,0.1)", borderRadius:7, color:"#F0EDE8", fontSize:12, outline:"none", boxSizing:"border-box" }}
+            style={{ width:"100%", padding:"7px 9px", background:"var(--glass-bg)", border:"1px solid var(--glass-border)", borderRadius:7, color:"var(--text-main)", fontSize:12, outline:"none", boxSizing:"border-box" }}
           />
         </div>
       </div>

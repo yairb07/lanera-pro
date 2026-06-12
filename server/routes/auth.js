@@ -63,4 +63,48 @@ router.post('/logout', (_req, res) => {
   res.json({ ok: true });
 });
 
+const changePasswordSchema = z.object({
+  oldPassword: z.string().min(8).max(200),
+  newPassword: z.string().min(8).max(200),
+});
+
+router.post('/password', requireAuth, async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = changePasswordSchema.parse(req.body);
+
+    if (oldPassword === newPassword) {
+      return res.status(400).json({ message: 'La nueva contraseña debe ser diferente a la actual.' });
+    }
+
+    const result = await query(
+      `select password_hash from app_users where id = $1 and is_active = true`,
+      [req.user.id],
+    );
+
+    const stored = result.rows[0];
+    if (!stored) {
+      return res.status(401).json({ message: 'Sesion invalida.' });
+    }
+
+    const isValid = await bcrypt.compare(oldPassword, stored.password_hash);
+    if (!isValid) {
+      return res.status(401).json({ message: 'La contraseña actual es incorrecta.' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await query(
+      `update app_users set password_hash = $1 where id = $2`,
+      [passwordHash, req.user.id],
+    );
+
+    return res.json({ message: 'Contraseña actualizada correctamente.' });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Datos invalidos.', errors: error.issues });
+    }
+
+    next(error);
+  }
+});
+
 export default router;

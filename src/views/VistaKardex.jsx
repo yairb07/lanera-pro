@@ -13,18 +13,18 @@ const MOVIMIENTO_TIPOS = {
 // ── Estilos base ─────────────────────────────────────────────────
 const S = {
   card: {
-    background:"rgba(255,255,255,0.05)",
-    border:"0.5px solid rgba(255,255,255,0.10)",
+    background:"var(--glass-bg)",
+    border:"1px solid var(--glass-border)",
     borderRadius:12,
     backdropFilter:"blur(20px)",
   },
   input: {
     width:"100%",
     padding:"8px 10px",
-    background:"rgba(255,255,255,0.04)",
-    border:"0.5px solid rgba(255,255,255,0.10)",
+    background:"var(--glass-bg)",
+    border:"1px solid var(--glass-border)",
     borderRadius:7,
-    color:"#F0EDE8",
+    color:"var(--text-main)",
     fontSize:12,
     outline:"none",
     fontFamily:"monospace",
@@ -33,7 +33,7 @@ const S = {
   },
   label: {
     fontSize:10,
-    color:"rgba(240,237,232,0.4)",
+    color:"var(--text-muted)",
     display:"block",
     marginBottom:4,
     textTransform:"uppercase",
@@ -42,8 +42,8 @@ const S = {
   },
   btnPrimary: {
     padding:"8px 16px",
-    background:"#C8873A",
-    color:"#fff",
+    background:"var(--accent)",
+    color:"var(--input-color)",
     border:"none",
     borderRadius:8,
     cursor:"pointer",
@@ -53,9 +53,9 @@ const S = {
   },
   btnGhost: {
     padding:"6px 14px",
-    background:"rgba(255,255,255,0.04)",
-    color:"rgba(240,237,232,0.6)",
-    border:"0.5px solid rgba(255,255,255,0.10)",
+    background:"var(--glass-bg)",
+    color:"var(--text-muted)",
+    border:"1px solid var(--glass-border)",
     borderRadius:8,
     cursor:"pointer",
     fontSize:11,
@@ -227,7 +227,7 @@ export default function VistaKardex({ conos = [] }) {
   const salidasHoy    = movimientos.filter(m => m.fecha === new Date().toISOString().split("T")[0] && m.tipo === "salida").reduce((s,m) => s + m.cantidad, 0);
 
   return (
-    <div style={{ color:"#F0EDE8", fontFamily:"sans-serif" }}>
+    <div style={{ color:"var(--text-main)", fontFamily:"sans-serif" }}>
 
       {/* ── Métricas ── */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(160px, 1fr))", gap:12, marginBottom:20 }}>
@@ -238,8 +238,8 @@ export default function VistaKardex({ conos = [] }) {
           { label:"Movimientos hoy",      value:entradasHoy + salidasHoy, badge:`↑${entradasHoy} entradas · ↓${salidasHoy} salidas`, bc:"#5BA3D4" },
         ].map(m => (
           <div key={m.label} style={{ ...S.card, padding:14 }}>
-            <div style={{ fontSize:10, color:"rgba(240,237,232,0.4)", textTransform:"uppercase", letterSpacing:1, marginBottom:6, fontFamily:"monospace" }}>{m.label}</div>
-            <div style={{ fontSize:26, color:"#F0EDE8", lineHeight:1, fontFamily:"Georgia, serif" }}>{m.value}</div>
+            <div style={{ fontSize:10, color:"var(--text-muted)", textTransform:"uppercase", letterSpacing:1, marginBottom:6, fontFamily:"monospace" }}>{m.label}</div>
+            <div style={{ fontSize:26, color:"var(--text-main)", lineHeight:1, fontFamily:"Georgia, serif" }}>{m.value}</div>
             <div style={{ marginTop:6, fontSize:10, color:m.bc, background:m.bc+"22", padding:"2px 8px", borderRadius:20, display:"inline-block", fontFamily:"monospace" }}>{m.badge}</div>
           </div>
         ))}
@@ -309,9 +309,9 @@ export default function VistaKardex({ conos = [] }) {
                   {["Código","Marca","Color","Peso/cono","Proveedor","Stock","Estado","Movimiento rápido"].map(h => (
                     <th key={h} style={{
                       textAlign:"left", padding:"10px 14px",
-                      color:"rgba(240,237,232,0.3)", fontSize:9,
+                      color:"var(--text-muted)", fontSize:9,
                       letterSpacing:1, textTransform:"uppercase",
-                      borderBottom:"0.5px solid rgba(255,255,255,0.08)",
+                      borderBottom:"1px solid var(--glass-border)",
                       whiteSpace:"nowrap",
                     }}>{h}</th>
                   ))}
@@ -334,21 +334,21 @@ export default function VistaKardex({ conos = [] }) {
                     <tr key={c.id}
                       onMouseEnter={e => e.currentTarget.style.background="rgba(255,255,255,0.03)"}
                       onMouseLeave={e => e.currentTarget.style.background="transparent"}
-                      style={{ borderBottom:"0.5px solid rgba(255,255,255,0.05)" }}>
-                      <td style={{ padding:"10px 14px", color:"#C8873A", fontWeight:600 }}>{c.codigo}</td>
+                      style={{ borderBottom:"1px solid var(--glass-border)" }}>
+                      <td style={{ padding:"10px 14px", color:"var(--accent)", fontWeight:600 }}>{c.codigo}</td>
                       <td style={{ padding:"10px 14px" }}>
-                        <span style={{ background:"rgba(200,135,58,0.12)", color:"#C8873A", padding:"2px 8px", borderRadius:6, fontSize:10 }}>
+                        <span style={{ background:"var(--accent-soft)", color:"var(--accent)", padding:"2px 8px", borderRadius:6, fontSize:10 }}>
                           {c.marca}
                         </span>
                       </td>
-                      <td style={{ padding:"10px 14px", color:"#F0EDE8" }}>{c.color}</td>
-                      <td style={{ padding:"10px 14px", color:"rgba(240,237,232,0.5)" }}>{c.peso}</td>
-                      <td style={{ padding:"10px 14px", color:"rgba(240,237,232,0.5)" }}>{c.proveedor}</td>
+                      <td style={{ padding:"10px 14px", color:"var(--text-main)" }}>{c.color}</td>
+                      <td style={{ padding:"10px 14px", color:"var(--text-muted)" }}>{c.peso}</td>
+                      <td style={{ padding:"10px 14px", color:"var(--text-muted)" }}>{c.proveedor}</td>
                       <td style={{ padding:"10px 14px" }}>
                         <span style={{ fontSize:18, fontWeight:700, color:estadoConfig.color, fontFamily:"Georgia,serif" }}>
                           {c.stock}
                         </span>
-                        <span style={{ fontSize:9, color:"rgba(240,237,232,0.3)", marginLeft:4 }}>conos</span>
+                        <span style={{ fontSize:9, color:"var(--text-muted)", marginLeft:4 }}>conos</span>
                       </td>
                       <td style={{ padding:"10px 14px" }}>
                         <span style={{ background:estadoConfig.bg, color:estadoConfig.color, padding:"3px 9px", borderRadius:20, fontSize:10 }}>
@@ -385,7 +385,7 @@ export default function VistaKardex({ conos = [] }) {
       {tab === "historial" && (
         <div style={{ ...S.card, padding:0, overflow:"hidden" }}>
           {movimientos.length === 0 ? (
-            <div style={{ padding:40, textAlign:"center", color:"rgba(240,237,232,0.3)", fontFamily:"monospace", fontSize:12 }}>
+            <div style={{ padding:40, textAlign:"center", color:"var(--text-muted)", fontFamily:"monospace", fontSize:12 }}>
               Sin movimientos registrados aún — usa "↑↓ Registrar movimiento"
             </div>
           ) : (
@@ -400,9 +400,9 @@ export default function VistaKardex({ conos = [] }) {
                     {["Fecha","Hora","Código","Marca","Color","Tipo","Cantidad","Stock anterior","Stock nuevo","Motivo"].map(h => (
                       <th key={h} style={{
                         textAlign:"left", padding:"10px 14px",
-                        color:"rgba(240,237,232,0.3)", fontSize:9,
+                        color:"var(--text-muted)", fontSize:9,
                         letterSpacing:1, textTransform:"uppercase",
-                        borderBottom:"0.5px solid rgba(255,255,255,0.08)",
+                        borderBottom:"1px solid var(--glass-border)",
                         whiteSpace:"nowrap",
                       }}>{h}</th>
                     ))}
@@ -415,14 +415,14 @@ export default function VistaKardex({ conos = [] }) {
                       <tr key={m.id}
                         onMouseEnter={e => e.currentTarget.style.background="rgba(255,255,255,0.03)"}
                         onMouseLeave={e => e.currentTarget.style.background="transparent"}
-                        style={{ borderBottom:"0.5px solid rgba(255,255,255,0.05)" }}>
-                        <td style={{ padding:"9px 14px", color:"rgba(240,237,232,0.5)" }}>{m.fecha}</td>
-                        <td style={{ padding:"9px 14px", color:"rgba(240,237,232,0.3)" }}>{m.hora}</td>
-                        <td style={{ padding:"9px 14px", color:"#C8873A" }}>{m.codigo}</td>
+                        style={{ borderBottom:"1px solid var(--glass-border)" }}>
+                        <td style={{ padding:"9px 14px", color:"var(--text-muted)" }}>{m.fecha}</td>
+                        <td style={{ padding:"9px 14px", color:"var(--text-muted)" }}>{m.hora}</td>
+                        <td style={{ padding:"9px 14px", color:"var(--accent)" }}>{m.codigo}</td>
                         <td style={{ padding:"9px 14px" }}>
-                          <span style={{ background:"rgba(200,135,58,0.10)", color:"#C8873A", padding:"1px 7px", borderRadius:6, fontSize:10 }}>{m.marca}</span>
+                          <span style={{ background:"var(--accent-soft)", color:"var(--accent)", padding:"1px 7px", borderRadius:6, fontSize:10 }}>{m.marca}</span>
                         </td>
-                        <td style={{ padding:"9px 14px", color:"#F0EDE8" }}>{m.color}</td>
+                        <td style={{ padding:"9px 14px", color:"var(--text-main)" }}>{m.color}</td>
                         <td style={{ padding:"9px 14px" }}>
                           <span style={{ background:tc.bg, color:tc.color, padding:"2px 9px", borderRadius:20, fontSize:10 }}>
                             {tc.icono} {tc.label}
@@ -431,9 +431,9 @@ export default function VistaKardex({ conos = [] }) {
                         <td style={{ padding:"9px 14px", color:tc.color, fontWeight:700, fontSize:13 }}>
                           {m.tipo==="salida"?"-":m.tipo==="entrada"?"+":""}{m.cantidad}
                         </td>
-                        <td style={{ padding:"9px 14px", color:"rgba(240,237,232,0.4)" }}>{m.stockAnterior}</td>
-                        <td style={{ padding:"9px 14px", color:"#F0EDE8", fontWeight:600 }}>{m.stockNuevo}</td>
-                        <td style={{ padding:"9px 14px", color:"rgba(240,237,232,0.5)", maxWidth:160, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{m.motivo}</td>
+                        <td style={{ padding:"9px 14px", color:"var(--text-muted)" }}>{m.stockAnterior}</td>
+                        <td style={{ padding:"9px 14px", color:"var(--text-main)", fontWeight:600 }}>{m.stockNuevo}</td>
+                        <td style={{ padding:"9px 14px", color:"var(--text-muted)", maxWidth:160, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{m.motivo}</td>
                       </tr>
                     );
                   })}
@@ -452,10 +452,10 @@ export default function VistaKardex({ conos = [] }) {
           zIndex:1000, backdropFilter:"blur(6px)",
         }}>
           <div onClick={e => e.stopPropagation()} style={{
-            ...S.card, background:"rgba(18,20,28,0.98)",
+            ...S.card, background:"var(--input-bg)",
             padding:28, width:420, maxWidth:"95vw",
           }}>
-            <div style={{ fontSize:16, color:"#F0EDE8", fontFamily:"Georgia,serif", marginBottom:20 }}>
+            <div style={{ fontSize:16, color:"var(--text-main)", fontFamily:"Georgia,serif", marginBottom:20 }}>
               ↑↓ Registrar movimiento de conos
             </div>
 
@@ -492,7 +492,7 @@ export default function VistaKardex({ conos = [] }) {
 
             {/* Preview stock actual */}
             {conoSeleccionado && (
-              <div style={{ marginBottom:12, padding:"8px 12px", background:"rgba(200,135,58,0.08)", border:"0.5px solid rgba(200,135,58,0.25)", borderRadius:7, fontSize:11, color:"#C8873A", fontFamily:"monospace" }}>
+              <div style={{ marginBottom:12, padding:"8px 12px", background:"var(--accent-soft)", border:"0.5px solid rgba(200,135,58,0.25)", borderRadius:7, fontSize:11, color:"var(--accent)", fontFamily:"monospace" }}>
                 Stock actual: <strong>{conoSeleccionado.stock} conos</strong> · {conoSeleccionado.peso} c/u
               </div>
             )}
@@ -534,9 +534,9 @@ export default function VistaKardex({ conos = [] }) {
 
             {/* Preview resultado */}
             {conoSeleccionado && fMov.cantidad && (
-              <div style={{ marginBottom:16, padding:"10px 12px", background:"rgba(255,255,255,0.04)", border:"0.5px solid rgba(255,255,255,0.10)", borderRadius:7, fontSize:11, fontFamily:"monospace" }}>
-                <span style={{ color:"rgba(240,237,232,0.4)" }}>Stock después: </span>
-                <strong style={{ color:"#F0EDE8", fontSize:14 }}>
+              <div style={{ marginBottom:16, padding:"10px 12px", background:"var(--glass-bg)", border:"1px solid var(--glass-border)", borderRadius:7, fontSize:11, fontFamily:"monospace" }}>
+                <span style={{ color:"var(--text-muted)" }}>Stock después: </span>
+                <strong style={{ color:"var(--text-main)", fontSize:14 }}>
                   {fMov.tipo==="entrada" ? conoSeleccionado.stock + parseInt(fMov.cantidad||0)
                    : fMov.tipo==="salida" ? Math.max(0, conoSeleccionado.stock - parseInt(fMov.cantidad||0))
                    : parseInt(fMov.cantidad||0)
@@ -561,10 +561,10 @@ export default function VistaKardex({ conos = [] }) {
           zIndex:1000, backdropFilter:"blur(6px)",
         }}>
           <div onClick={e => e.stopPropagation()} style={{
-            ...S.card, background:"rgba(18,20,28,0.98)",
+            ...S.card, background:"var(--input-bg)",
             padding:28, width:420, maxWidth:"95vw",
           }}>
-            <div style={{ fontSize:16, color:"#F0EDE8", fontFamily:"Georgia,serif", marginBottom:20 }}>
+            <div style={{ fontSize:16, color:"var(--text-main)", fontFamily:"Georgia,serif", marginBottom:20 }}>
               ＋ Registrar nuevo cono
             </div>
 
