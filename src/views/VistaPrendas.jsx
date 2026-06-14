@@ -6,7 +6,7 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
   const [prendaSeleccionada, setPrendaSeleccionada] = useState(null);
   const [prendaResaltada, setPrendaResaltada] = useState(null);
   const [nuevaCategoria, setNuevaCategoria] = useState('');
-  const [nuevaPrenda, setNuevaPrenda] = useState({ name: '', category: 'General', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '' });
+  const [nuevaPrenda, setNuevaPrenda] = useState({ name: '', category: 'General', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '', machineType: 'computarizada', patternReference: '', manualTension: '' });
   const [guardando, setGuardando] = useState(false);
   const [filtroCategoria, setFiltroCategoria] = useState('Todas');
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
@@ -53,7 +53,10 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
       vueltas: prenda.notes?.vueltas || '',
       tension: prenda.notes?.tension || '',
       hilo: prenda.notes?.hilo || '',
-      aguja: prenda.notes?.aguja || ''
+      aguja: prenda.notes?.aguja || '',
+      machineType: prenda.machineType || 'computarizada',
+      patternReference: prenda.patternReference || '',
+      manualTension: prenda.manualTension || ''
     });
     setMenuAbiertoId(null);
   };
@@ -70,7 +73,10 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
         laps: parseInt(prendaEditando.vueltas) || 0,
         tension: prendaEditando.tension,
         yarn_type: prendaEditando.hilo,
-        needle: prendaEditando.aguja
+        needle: prendaEditando.aguja,
+        machine_type: prendaEditando.machineType || 'computarizada',
+        pattern_reference: prendaEditando.patternReference || '',
+        manual_tension: prendaEditando.manualTension || ''
       };
       const actualizada = await api.patch(`/api/prendas/${prendaEditando.id}`, payload);
       setPrendas(prendas.map(p => p.id === prendaEditando.id ? {
@@ -79,6 +85,9 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
         category: actualizada.category_name || p.category,
         image: actualizada.image_url || p.image,
         programFile: actualizada.file_program || p.programFile,
+        machineType: actualizada.machine_type || p.machineType,
+        patternReference: actualizada.pattern_reference || p.patternReference,
+        manualTension: actualizada.manual_tension || p.manualTension,
         notes: { vueltas: actualizada.laps, tension: actualizada.tension, hilo: actualizada.yarn_type, aguja: actualizada.needle }
       } : p));
       mostrarToast('Diseno actualizado correctamente');
@@ -102,7 +111,10 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
         laps: parseInt(nuevaPrenda.vueltas) || 0,
         tension: nuevaPrenda.tension,
         yarn_type: nuevaPrenda.hilo,
-        needle: nuevaPrenda.aguja
+        needle: nuevaPrenda.aguja,
+        machine_type: nuevaPrenda.machineType || 'computarizada',
+        pattern_reference: nuevaPrenda.patternReference || '',
+        manual_tension: nuevaPrenda.manualTension || ''
       };
 
       const prendaCreada = await api.post('/api/prendas', payload);
@@ -115,6 +127,9 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
         programFile: prendaCreada.file_program,
         isFavorite: false,
         createdAt: prendaCreada.created_at || new Date().toISOString(),
+        machineType: prendaCreada.machine_type || 'computarizada',
+        patternReference: prendaCreada.pattern_reference || '',
+        manualTension: prendaCreada.manual_tension || '',
         notes: {
           vueltas: prendaCreada.laps,
           tension: prendaCreada.tension,
@@ -125,7 +140,7 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
 
       setPrendas([prendaAAgregar, ...prendas]);
       setEstaModalAbierto(false);
-      setNuevaPrenda({ name: '', category: 'General', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '' });
+      setNuevaPrenda({ name: '', category: 'General', image: '', programFile: '', vueltas: '', tension: '', hilo: '', aguja: '', machineType: 'computarizada', patternReference: '', manualTension: '' });
     } catch (error) {
       alert('Error al guardar la prenda: ' + error.message);
     } finally {
@@ -395,28 +410,47 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
                         )}
                       </div>
 
-                      {/* Info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
                           <h3 style={{ margin: 0, color: 'var(--accent)', fontSize: '1.05rem' }}>{prenda.name}</h3>
-                          <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginLeft: '0.5rem', whiteSpace: 'nowrap' }}>{prenda.programFile}</span>
+                          {prenda.machineType === 'manual' ? (
+                            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginLeft: '0.5rem', whiteSpace: 'nowrap' }}>Manual</span>
+                          ) : (
+                            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginLeft: '0.5rem', whiteSpace: 'nowrap' }}>{prenda.programFile}</span>
+                          )}
                         </div>
 
-                        <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: vista === 'list' ? 'repeat(4, 1fr)' : '1fr 1fr',
-                          gap: '0.4rem',
-                          fontSize: '0.82rem',
-                          background: 'rgba(0,0,0,0.2)',
-                          padding: '0.75rem',
-                          borderRadius: '8px',
-                          marginBottom: '0.75rem'
-                        }}>
-                          <div><strong>Vueltas:</strong> {prenda.notes.vueltas}</div>
-                          <div><strong>Tensión:</strong> {prenda.notes.tension}</div>
-                          <div><strong>Hilo:</strong> {prenda.notes.hilo}</div>
-                          <div><strong>Aguja:</strong> {prenda.notes.aguja}</div>
-                        </div>
+                        {prenda.machineType === 'manual' ? (
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr',
+                            gap: '0.4rem',
+                            fontSize: '0.82rem',
+                            background: 'rgba(0,0,0,0.2)',
+                            padding: '0.75rem',
+                            borderRadius: '8px',
+                            marginBottom: '0.75rem'
+                          }}>
+                            <div><strong>Tensión Manual:</strong> {prenda.manualTension || 'No especificada'}</div>
+                            <div><strong>Instrucciones/Hilo:</strong> {prenda.notes.hilo || 'No especificado'}</div>
+                          </div>
+                        ) : (
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: vista === 'list' ? 'repeat(4, 1fr)' : '1fr 1fr',
+                            gap: '0.4rem',
+                            fontSize: '0.82rem',
+                            background: 'rgba(0,0,0,0.2)',
+                            padding: '0.75rem',
+                            borderRadius: '8px',
+                            marginBottom: '0.75rem'
+                          }}>
+                            <div><strong>Vueltas:</strong> {prenda.notes.vueltas}</div>
+                            <div><strong>Tensión:</strong> {prenda.notes.tension}</div>
+                            <div><strong>Hilo:</strong> {prenda.notes.hilo}</div>
+                            <div><strong>Aguja:</strong> {prenda.notes.aguja}</div>
+                          </div>
+                        )}
 
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                           <button
@@ -425,12 +459,33 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
                           >
                             Ver Ficha
                           </button>
-                          <button
-                            onClick={() => manejarDescarga(prenda)}
-                            style={{ flex: 1, padding: '0.45rem', borderRadius: '6px', background: 'var(--accent)', border: 'none', color: 'white', fontSize: '0.78rem', fontWeight: '600', cursor: 'pointer' }}
-                          >
-                            Descargar {prenda.programFile.split('.').pop().toUpperCase()}
-                          </button>
+                          {prenda.machineType === 'manual' ? (
+                            prenda.patternReference ? (
+                              <a
+                                href={prenda.patternReference}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn-primary"
+                                style={{ flex: 1, padding: '0.45rem', borderRadius: '6px', background: 'var(--accent)', border: 'none', color: 'white', fontSize: '0.78rem', fontWeight: '600', cursor: 'pointer', textDecoration: 'none', textAlign: 'center', display: 'inline-block' }}
+                              >
+                                Ver Matiz
+                              </a>
+                            ) : (
+                              <button
+                                disabled
+                                style={{ flex: 1, padding: '0.45rem', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'var(--text-muted)', fontSize: '0.78rem', fontWeight: '600', cursor: 'not-allowed' }}
+                              >
+                                Sin Matiz
+                              </button>
+                            )
+                          ) : (
+                            <button
+                              onClick={() => manejarDescarga(prenda)}
+                              style={{ flex: 1, padding: '0.45rem', borderRadius: '6px', background: 'var(--accent)', border: 'none', color: 'white', fontSize: '0.78rem', fontWeight: '600', cursor: 'pointer' }}
+                            >
+                              Descargar {prenda.programFile.split('.').pop().toUpperCase()}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -452,22 +507,52 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
             <div style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column' }}>
               <h2 style={{ color: 'var(--accent)', marginBottom: '0.5rem' }}>Ficha Técnica</h2>
               <h3 style={{ margin: '0 0 0.5rem 0' }}>{prendaSeleccionada.name}</h3>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.85rem' }}>{prendaSeleccionada.programFile}</p>
+              {prendaSeleccionada.machineType === 'manual' ? (
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.85rem' }}>Máquina Manual / Artesanal</p>
+              ) : (
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.85rem' }}>{prendaSeleccionada.programFile}</p>
+              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', flex: 1 }}>
                 <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
-                  <strong>Especificaciones de Máquina:</strong>
-                  <ul style={{ marginTop: '1rem', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <li>Tension: {prendaSeleccionada.notes.tension}</li>
-                    <li>Vueltas: {prendaSeleccionada.notes.vueltas}</li>
-                    <li>Hilo: {prendaSeleccionada.notes.hilo}</li>
-                    <li>Aguja/Galga: {prendaSeleccionada.notes.aguja}</li>
-                  </ul>
+                  {prendaSeleccionada.machineType === 'manual' ? (
+                    <>
+                      <strong>Especificaciones Manuales:</strong>
+                      <ul style={{ marginTop: '1rem', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <li>Tensión Manual: {prendaSeleccionada.manualTension || 'No especificada'}</li>
+                        <li>Instrucciones/Hilo: {prendaSeleccionada.notes.hilo || 'No especificado'}</li>
+                      </ul>
+                    </>
+                  ) : (
+                    <>
+                      <strong>Especificaciones de Máquina:</strong>
+                      <ul style={{ marginTop: '1rem', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <li>Tension: {prendaSeleccionada.notes.tension}</li>
+                        <li>Vueltas: {prendaSeleccionada.notes.vueltas}</li>
+                        <li>Hilo: {prendaSeleccionada.notes.hilo}</li>
+                        <li>Aguja/Galga: {prendaSeleccionada.notes.aguja}</li>
+                      </ul>
+                    </>
+                  )}
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                <button className="btn-primary" style={{ flex: 1 }} onClick={() => manejarDescarga(prendaSeleccionada)}>Descargar Archivo</button>
+                {prendaSeleccionada.machineType === 'manual' ? (
+                  prendaSeleccionada.patternReference && (
+                    <a
+                      href={prendaSeleccionada.patternReference}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-primary"
+                      style={{ flex: 1, textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      Ver Matiz / Patrón
+                    </a>
+                  )
+                ) : (
+                  <button className="btn-primary" style={{ flex: 1 }} onClick={() => manejarDescarga(prendaSeleccionada)}>Descargar Archivo</button>
+                )}
                 <button className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setPrendaSeleccionada(null)}>Cerrar</button>
               </div>
             </div>
@@ -479,7 +564,7 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
       {estaModalAbierto && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 3000, backdropFilter: 'blur(5px)', overflowY: 'auto', padding: '2rem 0' }}>
           <div className="glass-panel" style={{ width: '450px', padding: '2rem', flexShrink: 0 }}>
-            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Agregar Diseño Heng Qiang</h2>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Agregar Diseño</h2>
             <form onSubmit={manejarAgregarPrenda} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <input
                 className="glass-input" placeholder="Nombre del diseño" required
@@ -496,17 +581,66 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
                 {categorias.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
 
-              <div style={{ padding: '0.8rem', border: '1px dashed var(--glass-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>Subir Programa HQPDS (.HCD, .PAT, .HQS)</label>
-                <input
-                  type="file" accept=".hcd,.pat,.hqs"
-                  style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
-                  onChange={e => {
-                    const archivo = e.target.files[0];
-                    if (archivo) setNuevaPrenda({ ...nuevaPrenda, programFile: archivo.name });
-                  }}
-                />
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Tipo de Máquina</label>
+                <select
+                  className="glass-input"
+                  value={nuevaPrenda.machineType || 'computarizada'}
+                  onChange={e => setNuevaPrenda({ ...nuevaPrenda, machineType: e.target.value })}
+                  required
+                >
+                  <option value="computarizada">Computarizada (HQPDS)</option>
+                  <option value="manual">Manual / Artesanal</option>
+                </select>
               </div>
+
+              {nuevaPrenda.machineType === 'manual' ? (
+                <>
+                  <input
+                    type="text"
+                    className="glass-input"
+                    placeholder="Enlace al Matiz / Google Photos"
+                    value={nuevaPrenda.patternReference || ''}
+                    onChange={e => setNuevaPrenda({ ...nuevaPrenda, patternReference: e.target.value })}
+                  />
+                  <input
+                    className="glass-input"
+                    placeholder="Tensión Manual (Ej: Tensión 7 en antena)"
+                    value={nuevaPrenda.manualTension || ''}
+                    onChange={e => setNuevaPrenda({ ...nuevaPrenda, manualTension: e.target.value })}
+                  />
+                  <textarea
+                    className="glass-input"
+                    placeholder="Instrucciones artesanales / Hilo"
+                    value={nuevaPrenda.hilo}
+                    onChange={e => setNuevaPrenda({ ...nuevaPrenda, hilo: e.target.value })}
+                    style={{ minHeight: '80px', resize: 'vertical' }}
+                  />
+                </>
+              ) : (
+                <>
+                  <div style={{ padding: '0.8rem', border: '1px dashed var(--glass-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
+                    <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>Subir Programa HQPDS (.HCD, .PAT, .HQS)</label>
+                    <input
+                      type="file" accept=".hcd,.pat,.hqs"
+                      style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}
+                      onChange={e => {
+                        const archivo = e.target.files[0];
+                        if (archivo) setNuevaPrenda({ ...nuevaPrenda, programFile: archivo.name });
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <input className="glass-input" placeholder="Vueltas" type="number" value={nuevaPrenda.vueltas} onChange={e => setNuevaPrenda({ ...nuevaPrenda, vueltas: e.target.value })} />
+                    <input className="glass-input" placeholder="Tensión" value={nuevaPrenda.tension} onChange={e => setNuevaPrenda({ ...nuevaPrenda, tension: e.target.value })} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <input className="glass-input" placeholder="Tipo de Hilo" value={nuevaPrenda.hilo} onChange={e => setNuevaPrenda({ ...nuevaPrenda, hilo: e.target.value })} />
+                    <input className="glass-input" placeholder="Galga / Aguja" value={nuevaPrenda.aguja} onChange={e => setNuevaPrenda({ ...nuevaPrenda, aguja: e.target.value })} />
+                  </div>
+                </>
+              )}
 
               <div style={{ padding: '0.8rem', border: '1px dashed var(--glass-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
                 <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>Imagen de Previsualización</label>
@@ -522,15 +656,6 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
                     }
                   }}
                 />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <input className="glass-input" placeholder="Vueltas" type="number" value={nuevaPrenda.vueltas} onChange={e => setNuevaPrenda({ ...nuevaPrenda, vueltas: e.target.value })} />
-                <input className="glass-input" placeholder="Tensión" value={nuevaPrenda.tension} onChange={e => setNuevaPrenda({ ...nuevaPrenda, tension: e.target.value })} />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <input className="glass-input" placeholder="Tipo de Hilo" value={nuevaPrenda.hilo} onChange={e => setNuevaPrenda({ ...nuevaPrenda, hilo: e.target.value })} />
-                <input className="glass-input" placeholder="Galga / Aguja" value={nuevaPrenda.aguja} onChange={e => setNuevaPrenda({ ...nuevaPrenda, aguja: e.target.value })} />
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
@@ -561,11 +686,61 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
               >
                 {categorias.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-              <input
-                className="glass-input" placeholder="Nombre del archivo (.hcd)"
-                value={prendaEditando.programFile}
-                onChange={e => setPrendaEditando({ ...prendaEditando, programFile: e.target.value })}
-              />
+
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Tipo de Máquina</label>
+                <select
+                  className="glass-input"
+                  value={prendaEditando.machineType || 'computarizada'}
+                  onChange={e => setPrendaEditando({ ...prendaEditando, machineType: e.target.value })}
+                  required
+                >
+                  <option value="computarizada">Computarizada (HQPDS)</option>
+                  <option value="manual">Manual / Artesanal</option>
+                </select>
+              </div>
+
+              {prendaEditando.machineType === 'manual' ? (
+                <>
+                  <input
+                    type="text"
+                    className="glass-input"
+                    placeholder="Enlace al Matiz / Google Photos"
+                    value={prendaEditando.patternReference || ''}
+                    onChange={e => setPrendaEditando({ ...prendaEditando, patternReference: e.target.value })}
+                  />
+                  <input
+                    className="glass-input"
+                    placeholder="Tensión Manual (Ej: Tensión 7 en antena)"
+                    value={prendaEditando.manualTension || ''}
+                    onChange={e => setPrendaEditando({ ...prendaEditando, manualTension: e.target.value })}
+                  />
+                  <textarea
+                    className="glass-input"
+                    placeholder="Instrucciones artesanales / Hilo"
+                    value={prendaEditando.hilo}
+                    onChange={e => setPrendaEditando({ ...prendaEditando, hilo: e.target.value })}
+                    style={{ minHeight: '80px', resize: 'vertical' }}
+                  />
+                </>
+              ) : (
+                <>
+                  <input
+                    className="glass-input" placeholder="Nombre del archivo (.hcd)"
+                    value={prendaEditando.programFile}
+                    onChange={e => setPrendaEditando({ ...prendaEditando, programFile: e.target.value })}
+                  />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <input className="glass-input" placeholder="Vueltas" type="number" value={prendaEditando.vueltas} onChange={e => setPrendaEditando({ ...prendaEditando, vueltas: e.target.value })} />
+                    <input className="glass-input" placeholder="Tensión" value={prendaEditando.tension} onChange={e => setPrendaEditando({ ...prendaEditando, tension: e.target.value })} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <input className="glass-input" placeholder="Tipo de Hilo" value={prendaEditando.hilo} onChange={e => setPrendaEditando({ ...prendaEditando, hilo: e.target.value })} />
+                    <input className="glass-input" placeholder="Galga / Aguja" value={prendaEditando.aguja} onChange={e => setPrendaEditando({ ...prendaEditando, aguja: e.target.value })} />
+                  </div>
+                </>
+              )}
+
               <div style={{ padding: '0.8rem', border: '1px dashed var(--glass-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.02)' }}>
                 <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>Cambiar imagen (opcional)</label>
                 <input
@@ -581,14 +756,7 @@ const VistaPrendas = ({ prendas = [], setPrendas, categorias = ['General'], setC
                   }}
                 />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <input className="glass-input" placeholder="Vueltas" type="number" value={prendaEditando.vueltas} onChange={e => setPrendaEditando({ ...prendaEditando, vueltas: e.target.value })} />
-                <input className="glass-input" placeholder="Tensión" value={prendaEditando.tension} onChange={e => setPrendaEditando({ ...prendaEditando, tension: e.target.value })} />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <input className="glass-input" placeholder="Tipo de Hilo" value={prendaEditando.hilo} onChange={e => setPrendaEditando({ ...prendaEditando, hilo: e.target.value })} />
-                <input className="glass-input" placeholder="Galga / Aguja" value={prendaEditando.aguja} onChange={e => setPrendaEditando({ ...prendaEditando, aguja: e.target.value })} />
-              </div>
+
               <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
                 <button type="button" className="nav-item" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setPrendaEditando(null)}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={guardando}>

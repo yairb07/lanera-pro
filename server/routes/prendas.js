@@ -62,7 +62,7 @@ router.post('/', async (req, res, next) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const { name, category, image_url, file_program, laps, tension, yarn_type, needle } = req.body;
+    const { name, category, image_url, file_program, laps, tension, yarn_type, needle, machine_type, pattern_reference, manual_tension } = req.body;
 
     if (!name) {
       return res.status(400).json({ message: 'Falta el nombre del diseño' });
@@ -78,8 +78,8 @@ router.post('/', async (req, res, next) => {
     }
 
     const query = `
-      INSERT INTO garments (name, category_id, image_url, file_program, laps, tension, yarn_type, needle)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO garments (name, category_id, image_url, file_program, laps, tension, yarn_type, needle, machine_type, pattern_reference, manual_tension)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `;
     const values = [
@@ -90,7 +90,10 @@ router.post('/', async (req, res, next) => {
       parseInt(laps) || 0,
       tension || '',
       yarn_type || '',
-      needle || ''
+      needle || '',
+      machine_type || 'computarizada',
+      pattern_reference || null,
+      manual_tension || ''
     ];
 
     const { rows } = await client.query(query, values);
@@ -115,7 +118,7 @@ router.patch('/:id', async (req, res, next) => {
   try {
     await client.query('BEGIN');
     const { id } = req.params;
-    const { name, category, image_url, file_program, laps, tension, yarn_type, needle } = req.body;
+    const { name, category, image_url, file_program, laps, tension, yarn_type, needle, machine_type, pattern_reference, manual_tension } = req.body;
 
     let category_id = null;
     if (category) {
@@ -125,9 +128,9 @@ router.patch('/:id', async (req, res, next) => {
 
     const { rows } = await client.query(`
       UPDATE garments
-      SET name=$1, category_id=$2, image_url=$3, file_program=$4, laps=$5, tension=$6, yarn_type=$7, needle=$8
-      WHERE id=$9 RETURNING *
-    `, [name, category_id, image_url, file_program, parseInt(laps)||0, tension, yarn_type, needle, id]);
+      SET name=$1, category_id=$2, image_url=$3, file_program=$4, laps=$5, tension=$6, yarn_type=$7, needle=$8, machine_type=$9, pattern_reference=$10, manual_tension=$11
+      WHERE id=$12 RETURNING *
+    `, [name, category_id, image_url, file_program, parseInt(laps)||0, tension, yarn_type, needle, machine_type || 'computarizada', pattern_reference, manual_tension, id]);
 
     if (rows.length === 0) return res.status(404).json({ message: 'Prenda no encontrada' });
 

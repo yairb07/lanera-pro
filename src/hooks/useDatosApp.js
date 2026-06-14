@@ -59,6 +59,9 @@ export const useDatosApp = () => {
           programFile: p.file_program || "diseño_heng_qiang.hcd",
           isFavorite: p.is_favorite || false,
           createdAt: p.created_at || new Date().toISOString(),
+          machineType: p.machine_type || 'computarizada',
+          patternReference: p.pattern_reference || '',
+          manualTension: p.manual_tension || '',
           notes: {
             vueltas: p.laps,
             tension: p.tension,
