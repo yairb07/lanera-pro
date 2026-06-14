@@ -86,4 +86,52 @@ router.post('/', requireAuth, requireRole('admin'), async (req, res, next) => {
   }
 });
 
+// GET /api/empleados/roles - Obtener todos los roles
+router.get('/roles', requireAuth, async (req, res, next) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM employee_roles ORDER BY name ASC');
+    res.json(rows);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/empleados/roles - Crear un nuevo rol (Solo admin)
+router.post('/roles', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({ message: 'El nombre del rol es obligatorio.' });
+    }
+
+    const { rows } = await pool.query(
+      'INSERT INTO employee_roles (name) VALUES ($1) ON CONFLICT (name) DO NOTHING RETURNING *',
+      [name]
+    );
+
+    if (rows.length === 0) {
+      const existing = await pool.query('SELECT * FROM employee_roles WHERE name = $1', [name]);
+      return res.status(200).json(existing.rows[0]);
+    }
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /api/empleados/roles/:id - Eliminar un rol (Solo admin)
+router.delete('/roles/:id', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { rowCount } = await pool.query('DELETE FROM employee_roles WHERE id = $1', [id]);
+    if (rowCount === 0) {
+      return res.status(404).json({ message: 'Rol no encontrado.' });
+    }
+    res.json({ message: 'Rol de empleado eliminado correctamente.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

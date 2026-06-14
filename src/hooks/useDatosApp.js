@@ -7,6 +7,7 @@ export const useDatosApp = () => {
   const [empleados, setEmpleados] = useState([]);
   const [prendas, setPrendas] = useState([]);
   const [categoriasPrendas, setCategoriasPrendas] = useState(['General']);
+  const [rolesEmpleados, setRolesEmpleados] = useState(['Tejedora', 'Remalladora', 'Acabados']);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,6 +18,7 @@ export const useDatosApp = () => {
         const prodData = await api.get('/api/produccion').catch(() => []);
         const prendasData = await api.get('/api/prendas').catch(() => []);
         const categoriasData = await api.get('/api/prendas/categorias').catch(() => []);
+        const rolesData = await api.get('/api/empleados/roles').catch(() => []);
         
         // Mapeo de Empleados (Backend snake_case -> Frontend camelCase)
         const mappedEmpleados = (Array.isArray(empData) ? empData : []).map(e => ({
@@ -49,6 +51,10 @@ export const useDatosApp = () => {
         // Mapeo de Categorías
         const mappedCats = (Array.isArray(categoriasData) ? categoriasData : []).map(c => c.name);
         if(mappedCats.length === 0) mappedCats.push('General');
+
+        // Mapeo de Roles de Empleados
+        const mappedRoles = (Array.isArray(rolesData) ? rolesData : []).map(r => r.name);
+        if(mappedRoles.length > 0) setRolesEmpleados(mappedRoles);
 
         // Mapeo de Prendas
         const mappedPrendas = (Array.isArray(prendasData) ? prendasData : []).map(p => ({
@@ -103,6 +109,7 @@ export const useDatosApp = () => {
     empleados, setEmpleados,
     prendas, setPrendas,
     categoriasPrendas, setCategoriasPrendas,
+    rolesEmpleados, setRolesEmpleados,
     loading
   };
 };

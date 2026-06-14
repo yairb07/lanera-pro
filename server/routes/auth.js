@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { query } from '../db.js';
-import { clearSessionCookie, requireAuth, setSessionCookie, signSession } from '../middleware/auth.js';
+import { clearSessionCookie, requireAuth, requireRole, setSessionCookie, signSession } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -103,6 +103,45 @@ router.post('/password', requireAuth, async (req, res, next) => {
       return res.status(400).json({ message: 'Datos invalidos.', errors: error.issues });
     }
 
+    next(error);
+  }
+});
+
+// POST /api/auth/register-admin - Registrar un administrador nuevo (Solo admins)
+router.post('/register-admin', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const adminSchema = z.object({
+      full_name: z.string().trim().min(3).max(100),
+      username: z.string().trim().min(3).max(50),
+      password: z.string().min(8).max(200),
+    });
+
+    const data = adminSchema.parse(req.body);
+    const passwordHash = await bcrypt.hash(data.password, 10);
+
+    const { rows } = await query(
+      `INSERT INTO app_users (username, password_hash, full_name, role, is_active)
+       VALUES ($1, $2, $3, 'admin', true)
+       RETURNING id, username, full_name, role`,
+      [data.username, passwordHash, data.full_name]
+    );
+
+    res.status(201).json({
+      message: 'Administrador creado correctamente.',
+      user: {
+        id: rows[0].id,
+        username: rows[0].username,
+        name: rows[0].full_name,
+        role: rows[0].role
+      }
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Datos de administrador inválidos.', errors: error.issues });
+    }
+    if (error.code === '23505') {
+      return res.status(400).json({ message: 'El nombre de usuario ya existe en el sistema.' });
+    }
     next(error);
   }
 });

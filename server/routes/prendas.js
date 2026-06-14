@@ -1,11 +1,12 @@
 import express from 'express';
 import { pool } from '../db.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // GET /api/prendas/categorias
 // Obtener todas las categorias
-router.get('/categorias', async (req, res, next) => {
+router.get('/categorias', requireAuth, async (req, res, next) => {
   try {
     const { rows } = await pool.query('SELECT * FROM garment_categories ORDER BY created_at ASC');
     res.json(rows);
@@ -16,7 +17,7 @@ router.get('/categorias', async (req, res, next) => {
 
 // POST /api/prendas/categorias
 // Crear una nueva categoria
-router.post('/categorias', async (req, res, next) => {
+router.post('/categorias', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const { name } = req.body;
     if (!name) {
@@ -41,13 +42,28 @@ router.post('/categorias', async (req, res, next) => {
 });
 
 // GET /api/prendas
-// Obtener todas las prendas con su nombre de categoría
-router.get('/', async (req, res, next) => {
+// Obtener todas las prendas con su nombre de categoría (con filtro de privacidad para empleados)
+router.get('/', requireAuth, async (req, res, next) => {
   try {
+    const userRole = req.user.role;
+    let filterQuery = '';
+
+    if (userRole === 'employee') {
+      const configRes = await pool.query("SELECT valor FROM ajustes WHERE clave = 'visibilidad_empleados'");
+      const visibilidad = configRes.rows[0]?.valor || 'todos';
+
+      if (visibilidad === 'manuales') {
+        filterQuery = "WHERE p.machine_type = 'manual'";
+      } else if (visibilidad === 'computarizadas') {
+        filterQuery = "WHERE p.machine_type = 'computarizada'";
+      }
+    }
+
     const { rows } = await pool.query(`
       SELECT p.*, c.name as category_name
       FROM garments p
       LEFT JOIN garment_categories c ON p.category_id = c.id
+      ${filterQuery}
       ORDER BY p.is_favorite DESC, p.created_at DESC
     `);
     res.json(rows);
@@ -58,7 +74,7 @@ router.get('/', async (req, res, next) => {
 
 // POST /api/prendas
 // Crear una prenda nueva
-router.post('/', async (req, res, next) => {
+router.post('/', requireAuth, requireRole('admin'), async (req, res, next) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -113,7 +129,7 @@ router.post('/', async (req, res, next) => {
 
 // PATCH /api/prendas/:id
 // Editar una prenda
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', requireAuth, requireRole('admin'), async (req, res, next) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -147,7 +163,7 @@ router.patch('/:id', async (req, res, next) => {
 
 // DELETE /api/prendas/:id
 // Eliminar una prenda
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const { id } = req.params;
     const { rowCount } = await pool.query('DELETE FROM garments WHERE id = $1', [id]);
@@ -162,7 +178,7 @@ router.delete('/:id', async (req, res, next) => {
 
 // PATCH /api/prendas/:id/favorite
 // Alternar el estado de favorito de una prenda
-router.patch('/:id/favorite', async (req, res, next) => {
+router.patch('/:id/favorite', requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const { is_favorite } = req.body;

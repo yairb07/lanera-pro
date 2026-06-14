@@ -1,14 +1,32 @@
 import { useState } from 'react';
 import { api } from '../services/clienteApi';
 
-const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
+const VistaEmpleados = ({ usuario, empleados = [], setEmpleados, roles = [], setRoles }) => {
   const [tipoModal, setTipoModal] = useState(null); // 'asignar', 'progreso', 'nuevo'
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(null);
   
   const [credencialesGeneradas, setCredencialesGeneradas] = useState(null);
+  const [nuevoRol, setNuevoRol] = useState('');
+  const [tipoCuenta, setTipoCuenta] = useState('employee'); // 'employee' | 'admin'
+  const [nuevoAdmin, setNuevoAdmin] = useState({ nombre: '', username: '', password: '' });
   const [nuevoEmpleado, setNuevoEmpleado] = useState({
-    nombre: '', dni: '', rol: 'Tejedora', turno: 'Mañana', pago: 'destajo'
+    nombre: '', dni: '', rol: roles[0] || 'Tejedora', turno: 'Mañana', pago: 'destajo'
   });
+
+  const rolUsuarioActual = usuario?.role || usuario?.rol;
+
+  const manejarCrearRol = async () => {
+    const nombre = nuevoRol.trim();
+    if (nombre && !roles.includes(nombre)) {
+      try {
+        await api.post('/api/empleados/roles', { name: nombre });
+        setRoles([...roles, nombre]);
+        setNuevoRol('');
+      } catch (error) {
+        alert('Error al crear el rol: ' + error.message);
+      }
+    }
+  };
 
   const manejarAsignacion = (emp) => {
     setEmpleadoSeleccionado(emp);
@@ -22,46 +40,65 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
 
   const manejarAgregarEmpleado = async (e) => {
     e.preventDefault();
-    if (!nuevoEmpleado.dni || nuevoEmpleado.dni.length < 8) {
-      alert("El DNI debe tener al menos 8 caracteres.");
-      return;
-    }
-    try {
-      const data = await api.post('/api/empleados', {
-        full_name: nuevoEmpleado.nombre,
-        dni: nuevoEmpleado.dni,
-        job_role: nuevoEmpleado.rol,
-        shift: nuevoEmpleado.turno,
-        payment_type: nuevoEmpleado.pago,
-        base_amount: 0
-      });
-      
-      const empleadoMapeado = {
-        id: data.empleado.id,
-        nombre: data.empleado.full_name,
-        rol: data.empleado.job_role,
-        turno: data.empleado.shift,
-        pago: data.empleado.payment_type === 'salary' ? 'sueldo' : 'destajo',
-        monto: Number(data.empleado.base_amount),
-        estado: data.empleado.status === 'active' ? 'activo' : 'inactivo',
-        prendas: 0,
-        tareas: 0
-      };
-
-      if (setEmpleados) {
-        setEmpleados([...empleados, empleadoMapeado]);
+    if (tipoCuenta === 'admin') {
+      if (!nuevoAdmin.username || nuevoAdmin.password.length < 8) {
+        alert("El usuario es obligatorio y la contraseña debe tener al menos 8 caracteres.");
+        return;
       }
-      
-      setCredencialesGeneradas({
-        usuario: data.credenciales.usuario,
-        password: data.credenciales.password,
-        nombre: data.empleado.full_name
-      });
-      
-      setTipoModal('credenciales');
-      setNuevoEmpleado({ nombre: '', dni: '', rol: 'Tejedora', turno: 'Mañana', pago: 'destajo' });
-    } catch (err) {
-      alert("Error al crear empleado: " + err.message);
+      try {
+        await api.post('/api/auth/register-admin', {
+          full_name: nuevoAdmin.nombre,
+          username: nuevoAdmin.username,
+          password: nuevoAdmin.password
+        });
+        alert(`Administrador "${nuevoAdmin.nombre}" creado correctamente.`);
+        setTipoModal(null);
+        setNuevoAdmin({ nombre: '', username: '', password: '' });
+      } catch (err) {
+        alert("Error al crear administrador: " + err.message);
+      }
+    } else {
+      if (!nuevoEmpleado.dni || nuevoEmpleado.dni.length < 8) {
+        alert("El DNI debe tener al menos 8 caracteres.");
+        return;
+      }
+      try {
+        const data = await api.post('/api/empleados', {
+          full_name: nuevoEmpleado.nombre,
+          dni: nuevoEmpleado.dni,
+          job_role: nuevoEmpleado.rol,
+          shift: nuevoEmpleado.turno,
+          payment_type: nuevoEmpleado.pago,
+          base_amount: 0
+        });
+        
+        const empleadoMapeado = {
+          id: data.empleado.id,
+          nombre: data.empleado.full_name,
+          rol: data.empleado.job_role,
+          turno: data.empleado.shift,
+          pago: data.empleado.payment_type === 'salary' ? 'sueldo' : 'destajo',
+          monto: Number(data.empleado.base_amount),
+          estado: data.empleado.status === 'active' ? 'activo' : 'inactivo',
+          prendas: 0,
+          tareas: 0
+        };
+
+        if (setEmpleados) {
+          setEmpleados([...empleados, empleadoMapeado]);
+        }
+        
+        setCredencialesGeneradas({
+          usuario: data.credenciales.usuario,
+          password: data.credenciales.password,
+          nombre: data.empleado.full_name
+        });
+        
+        setTipoModal('credenciales');
+        setNuevoEmpleado({ nombre: '', dni: '', rol: roles[0] || 'Tejedora', turno: 'Mañana', pago: 'destajo' });
+      } catch (err) {
+        alert("Error al crear empleado: " + err.message);
+      }
     }
   };
 
@@ -81,12 +118,28 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
 
   return (
     <div className="animate-fade">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1>Gestión de Empleados</h1>
           <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>Control de usuarios, tareas y pagos por destajo.</p>
         </div>
-        <button className="btn-primary" onClick={() => setTipoModal('nuevo')}>+ Nuevo Empleado / Usuario</button>
+        
+        {rolUsuarioActual === 'admin' && (
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Roles de Empleado:</span>
+            <input
+              className="glass-input"
+              placeholder="Nuevo rol..."
+              value={nuevoRol}
+              onChange={e => setNuevoRol(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && manejarCrearRol()}
+              style={{ width: '150px', padding: '0.45rem 0.8rem' }}
+            />
+            <button className="nav-item" onClick={manejarCrearRol} style={{ padding: '0.5rem 1rem', justifyContent: 'center' }}>Añadir</button>
+          </div>
+        )}
+
+        <button className="btn-primary" onClick={() => { setTipoCuenta('employee'); setTipoModal('nuevo'); }}>+ Nuevo Empleado / Usuario</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
@@ -170,39 +223,98 @@ const VistaEmpleados = ({ empleados = [], setEmpleados }) => {
       {tipoModal === 'nuevo' && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '4rem 1rem' }}>
           <div className="glass-panel" style={{ padding: '2rem', width: '450px', flexShrink: 0 }}>
-            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Nuevo Empleado</h2>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent)' }}>Nuevo Usuario / Registro</h2>
+            
+            {rolUsuarioActual === 'admin' && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.03)', padding: '0.25rem', borderRadius: '8px' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setTipoCuenta('employee')}
+                  style={{
+                    flex: 1, padding: '0.5rem', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                    background: tipoCuenta === 'employee' ? 'var(--accent)' : 'transparent',
+                    color: tipoCuenta === 'employee' ? '#fff' : 'var(--text-muted)',
+                    fontWeight: 'bold', fontSize: '0.85rem'
+                  }}
+                >
+                  Registrar Empleado
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setTipoCuenta('admin')}
+                  style={{
+                    flex: 1, padding: '0.5rem', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                    background: tipoCuenta === 'admin' ? 'var(--accent)' : 'transparent',
+                    color: tipoCuenta === 'admin' ? '#fff' : 'var(--text-muted)',
+                    fontWeight: 'bold', fontSize: '0.85rem'
+                  }}
+                >
+                  Crear Administrador
+                </button>
+              </div>
+            )}
+
             <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={manejarAgregarEmpleado}>
-              <input 
-                type="text" 
-                placeholder="Nombre completo" 
-                className="glass-input" 
-                value={nuevoEmpleado.nombre}
-                onChange={e => setNuevoEmpleado({...nuevoEmpleado, nombre: e.target.value})}
-                required 
-              />
-              <input 
-                type="text" 
-                placeholder="DNI / Documento" 
-                className="glass-input" 
-                value={nuevoEmpleado.dni}
-                onChange={e => setNuevoEmpleado({...nuevoEmpleado, dni: e.target.value})}
-                required 
-              />
-              <select className="glass-input" value={nuevoEmpleado.rol} onChange={e => setNuevoEmpleado({...nuevoEmpleado, rol: e.target.value})}>
-                <option value="Tejedora">Tejedora</option>
-                <option value="Remalladora">Remalladora</option>
-                <option value="Acabados">Acabados</option>
-                <option value="Supervisor">Supervisor</option>
-              </select>
-              <select className="glass-input" value={nuevoEmpleado.turno} onChange={e => setNuevoEmpleado({...nuevoEmpleado, turno: e.target.value})}>
-                <option value="Mañana">Turno Mañana</option>
-                <option value="Tarde">Turno Tarde</option>
-                <option value="Noche">Turno Noche</option>
-              </select>
-              <select className="glass-input" value={nuevoEmpleado.pago} onChange={e => setNuevoEmpleado({...nuevoEmpleado, pago: e.target.value})}>
-                <option value="destajo">Pago a Destajo</option>
-                <option value="sueldo">Sueldo Fijo</option>
-              </select>
+              {tipoCuenta === 'admin' ? (
+                <>
+                  <input 
+                    type="text" 
+                    placeholder="Nombre completo del Admin" 
+                    className="glass-input" 
+                    value={nuevoAdmin.nombre}
+                    onChange={e => setNuevoAdmin({...nuevoAdmin, nombre: e.target.value})}
+                    required 
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Nombre de usuario (Login)" 
+                    className="glass-input" 
+                    value={nuevoAdmin.username}
+                    onChange={e => setNuevoAdmin({...nuevoAdmin, username: e.target.value})}
+                    required 
+                  />
+                  <input 
+                    type="password" 
+                    placeholder="Contraseña (Mínimo 8 caracteres)" 
+                    className="glass-input" 
+                    value={nuevoAdmin.password}
+                    onChange={e => setNuevoAdmin({...nuevoAdmin, password: e.target.value})}
+                    required 
+                  />
+                </>
+              ) : (
+                <>
+                  <input 
+                    type="text" 
+                    placeholder="Nombre completo" 
+                    className="glass-input" 
+                    value={nuevoEmpleado.nombre}
+                    onChange={e => setNuevoEmpleado({...nuevoEmpleado, nombre: e.target.value})}
+                    required 
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="DNI / Documento" 
+                    className="glass-input" 
+                    value={nuevoEmpleado.dni}
+                    onChange={e => setNuevoEmpleado({...nuevoEmpleado, dni: e.target.value})}
+                    required 
+                  />
+                  <select className="glass-input" value={nuevoEmpleado.rol} onChange={e => setNuevoEmpleado({...nuevoEmpleado, rol: e.target.value})}>
+                    {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                  <select className="glass-input" value={nuevoEmpleado.turno} onChange={e => setNuevoEmpleado({...nuevoEmpleado, turno: e.target.value})}>
+                    <option value="Mañana">Turno Mañana</option>
+                    <option value="Tarde">Turno Tarde</option>
+                    <option value="Noche">Turno Noche</option>
+                  </select>
+                  <select className="glass-input" value={nuevoEmpleado.pago} onChange={e => setNuevoEmpleado({...nuevoEmpleado, pago: e.target.value})}>
+                    <option value="destajo">Pago a Destajo</option>
+                    <option value="sueldo">Sueldo Fijo</option>
+                  </select>
+                </>
+              )}
+              
               <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
                 <button type="button" onClick={() => setTipoModal(null)} className="nav-item" style={{ flex: 1, justifyContent: 'center' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar</button>

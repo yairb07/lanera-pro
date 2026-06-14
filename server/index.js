@@ -11,6 +11,7 @@ import empleadosRoutes from './routes/empleados.js';
 import conosRoutes from './routes/conos.js';
 import produccionRoutes from './routes/produccion.js';
 import prendasRoutes from './routes/prendas.js'; // Nuevas
+import ajustesRoutes from './routes/ajustes.js';
 
 assertConfig();
 
@@ -40,6 +41,7 @@ app.use('/api/empleados', empleadosRoutes);
 app.use('/api/conos', conosRoutes);
 app.use('/api/produccion', produccionRoutes);
 app.use('/api/prendas', prendasRoutes);
+app.use('/api/ajustes', ajustesRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: `Ruta no encontrada: ${req.method} ${req.path}` });

@@ -84,7 +84,7 @@ function App() {
     if (esMovil) setBarraLateralColapsada(false);
   };
 
-  const { conos, setConos, produccion, setProduccion, empleados, setEmpleados, prendas, setPrendas, categoriasPrendas, setCategoriasPrendas } = useDatosApp();
+  const { conos, setConos, produccion, setProduccion, empleados, setEmpleados, prendas, setPrendas, categoriasPrendas, setCategoriasPrendas, rolesEmpleados, setRolesEmpleados } = useDatosApp();
 
   const mostrarNotificacion = (mensaje) => {
     setNotificacion(mensaje);
@@ -134,7 +134,7 @@ function App() {
   const renderizarContenido = () => {
     switch (pestanaActiva) {
       case 'panel': return <VistaPanel usuario={usuarioActual} produccion={produccion} conos={conos} setPestanaActiva={setPestanaActiva} />;
-      case 'empleados': return <VistaEmpleados usuario={usuarioActual} empleados={empleados} setEmpleados={setEmpleados} />;
+      case 'empleados': return <VistaEmpleados usuario={usuarioActual} empleados={empleados} setEmpleados={setEmpleados} roles={rolesEmpleados} setRoles={setRolesEmpleados} />;;
       case 'prendas': return <VistaPrendas prendas={prendas} setPrendas={setPrendas} categorias={categoriasPrendas} setCategorias={setCategoriasPrendas} />;
       case 'produccion': return <VistaProduccion usuarioActual={usuarioActual} conos={conos} setConos={setConos} produccion={produccion} setProduccion={setProduccion} empleados={empleados} prendas={prendas} />;
       case 'kardex': return <VistaKardex conos={conos} setConos={setConos} />;

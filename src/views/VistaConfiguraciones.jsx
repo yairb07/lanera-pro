@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CampoContrasena from '../components/CampoContrasena';
 import { api } from '../services/clienteApi';
 
@@ -9,13 +9,54 @@ const etiquetaRol = (role) => {
 };
 
 const VistaConfiguraciones = ({ usuario, onNotificar, temaActual, cambiarTema }) => {
-  const [tabActiva, setTabActiva] = useState('cuenta'); // 'cuenta' | 'apariencia'
+  const [tabActiva, setTabActiva] = useState('cuenta'); // 'cuenta' | 'apariencia' | 'privacidad'
   
   const [actual, setActual] = useState('');
   const [nueva, setNueva] = useState('');
   const [confirmar, setConfirmar] = useState('');
   const [error, setError] = useState('');
   const [enviando, setEnviando] = useState(false);
+
+  const [visibilidad, setVisibilidad] = useState('todos');
+  const [cargandoAjustes, setCargandoAjustes] = useState(false);
+  const [guardandoAjustes, setGuardandoAjustes] = useState(false);
+
+  const role = usuario.role || usuario.rol;
+
+  useEffect(() => {
+    if (role === 'admin') {
+      const cargarAjustes = async () => {
+        setCargandoAjustes(true);
+        try {
+          const datos = await api.get('/api/ajustes');
+          if (datos.visibilidad_empleados) {
+            setVisibilidad(datos.visibilidad_empleados);
+          }
+        } catch (err) {
+          console.error('Error al cargar ajustes', err);
+        } finally {
+          setCargandoAjustes(false);
+        }
+      };
+      cargarAjustes();
+    }
+  }, [role]);
+
+  const manejarGuardarAjustes = async (e) => {
+    e.preventDefault();
+    setGuardandoAjustes(true);
+    try {
+      await api.patch('/api/ajustes', {
+        clave: 'visibilidad_empleados',
+        valor: visibilidad
+      });
+      onNotificar?.('Ajustes de visibilidad actualizados.');
+    } catch (err) {
+      alert('Error al guardar ajustes: ' + err.message);
+    } finally {
+      setGuardandoAjustes(false);
+    }
+  };
 
   const manejarCambioContrasena = async (e) => {
     e.preventDefault();
@@ -50,7 +91,6 @@ const VistaConfiguraciones = ({ usuario, onNotificar, temaActual, cambiarTema })
 
   const nombre = usuario.name || usuario.nombre || usuario.full_name || '—';
   const username = usuario.username || '—';
-  const role = usuario.role || usuario.rol;
 
   const TEMAS = [
     { id: 'default', nombre: 'Oscuro Taller', color: '#1a1a1a', accent: '#e67e22' },
@@ -93,6 +133,20 @@ const VistaConfiguraciones = ({ usuario, onNotificar, temaActual, cambiarTema })
         >
           Apariencia
         </button>
+        {role === 'admin' && (
+          <button 
+            onClick={() => setTabActiva('privacidad')}
+            style={{
+              background: 'none', border: 'none', padding: '0.5rem 1rem', cursor: 'pointer',
+              fontSize: '1rem', fontWeight: 'bold', transition: 'all 0.2s',
+              color: tabActiva === 'privacidad' ? 'var(--accent)' : 'var(--text-muted)',
+              borderBottom: tabActiva === 'privacidad' ? '2px solid var(--accent)' : '2px solid transparent',
+              marginBottom: '-0.5rem'
+            }}
+          >
+            Privacidad / Permisos
+          </button>
+        )}
       </div>
 
       {tabActiva === 'cuenta' && (
@@ -195,6 +249,65 @@ const VistaConfiguraciones = ({ usuario, onNotificar, temaActual, cambiarTema })
                 </div>
               ))}
             </div>
+          </section>
+        </div>
+      )}
+
+      {tabActiva === 'privacidad' && role === 'admin' && (
+        <div className="animate-fade">
+          <section className="glass-panel config-section">
+            <h2 style={{ color: 'var(--accent)', fontSize: '1.1rem', marginBottom: '0.5rem' }}>Visibilidad del Catálogo</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+              Define qué tipos de prendas/diseños pueden ver los empleados en su catálogo de prendas. El administrador siempre tiene acceso a todo.
+            </p>
+
+            {cargandoAjustes ? (
+              <p style={{ color: 'var(--text-muted)' }}>Cargando ajustes...</p>
+            ) : (
+              <form onSubmit={manejarGuardarAjustes} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.95rem' }}>
+                    <input 
+                      type="radio" 
+                      name="visibilidad" 
+                      value="todos" 
+                      checked={visibilidad === 'todos'} 
+                      onChange={e => setVisibilidad(e.target.value)}
+                    />
+                    <span>Mostrar todos los diseños (Computarizados y Manuales)</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.95rem' }}>
+                    <input 
+                      type="radio" 
+                      name="visibilidad" 
+                      value="manuales" 
+                      checked={visibilidad === 'manuales'} 
+                      onChange={e => setVisibilidad(e.target.value)}
+                    />
+                    <span>Solo mostrar diseños Manuales / Artesanales</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.95rem' }}>
+                    <input 
+                      type="radio" 
+                      name="visibilidad" 
+                      value="computarizadas" 
+                      checked={visibilidad === 'computarizadas'} 
+                      onChange={e => setVisibilidad(e.target.value)}
+                    />
+                    <span>Solo mostrar diseños Computarizados (HQPDS)</span>
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={guardandoAjustes}
+                  style={{ opacity: guardandoAjustes ? 0.7 : 1, alignSelf: 'flex-start' }}
+                >
+                  {guardandoAjustes ? 'Guardando...' : 'Guardar Preferencia'}
+                </button>
+              </form>
+            )}
           </section>
         </div>
       )}
