@@ -403,6 +403,58 @@ const VistaEmpleados = ({ usuario, empleados = [], setEmpleados, roles = [], set
           </div>
         </div>
       )}
+
+      {tipoModal === 'permisos' && empleadoPermisos && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '4rem 1rem' }}>
+          <div className="glass-panel" style={{ padding: '2rem', width: '450px', flexShrink: 0 }}>
+            <h2 style={{ marginBottom: '0.5rem', color: 'var(--accent)' }}>Permisos de Catálogo</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              Configura qué tipos de diseños puede ver <strong>{empleadoPermisos.nombre}</strong>.
+            </p>
+            
+            <form onSubmit={manejarGuardarPermisos} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', cursor: 'pointer', border: permisoSeleccionado === 'todos' ? '1px solid var(--accent)' : '1px solid transparent' }}>
+                <input type="radio" name="permisos" value="todos" checked={permisoSeleccionado === 'todos'} onChange={(e) => setPermisoSeleccionado(e.target.value)} />
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>Ver todo (Recomendado)</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Acceso completo al catálogo de diseños manuales y computarizados.</div>
+                </div>
+              </label>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', cursor: 'pointer', border: permisoSeleccionado === 'manuales' ? '1px solid var(--accent)' : '1px solid transparent' }}>
+                <input type="radio" name="permisos" value="manuales" checked={permisoSeleccionado === 'manuales'} onChange={(e) => setPermisoSeleccionado(e.target.value)} />
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>Solo Manuales</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Solo podrá ver las prendas marcadas como diseños manuales.</div>
+                </div>
+              </label>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', cursor: 'pointer', border: permisoSeleccionado === 'computarizadas' ? '1px solid var(--accent)' : '1px solid transparent' }}>
+                <input type="radio" name="permisos" value="computarizadas" checked={permisoSeleccionado === 'computarizadas'} onChange={(e) => setPermisoSeleccionado(e.target.value)} />
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>Solo Computarizadas</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Solo podrá ver las prendas marcadas como diseños computarizados.</div>
+                </div>
+              </label>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', cursor: 'pointer', border: permisoSeleccionado === 'ninguno' ? '1px solid #e74c3c' : '1px solid transparent' }}>
+                <input type="radio" name="permisos" value="ninguno" checked={permisoSeleccionado === 'ninguno'} onChange={(e) => setPermisoSeleccionado(e.target.value)} />
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>Ninguno</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No podrá ver ningún diseño en el catálogo.</div>
+                </div>
+              </label>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setTipoModal(null)} className="nav-item" style={{ flex: 1, justifyContent: 'center' }}>Cancelar</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={guardandoPermisos}>
+                  {guardandoPermisos ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
