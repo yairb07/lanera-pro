@@ -20,9 +20,35 @@ const empleadoSchema = z.object({
 router.get('/', requireAuth, async (req, res, next) => {
   try {
     const result = await query(
-      'SELECT id, full_name, job_role, shift, payment_type, base_amount, status FROM employees ORDER BY full_name ASC'
+      'SELECT id, full_name, job_role, shift, payment_type, base_amount, status, permisos_catalogo FROM employees ORDER BY full_name ASC'
     );
     res.json(result.rows);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH /api/empleados/:id/permisos - Actualizar permisos del catálogo de un empleado (Solo admin)
+router.patch('/:id/permisos', requireAuth, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { permisos_catalogo } = req.body;
+
+    const PERMISOS_VALIDOS = ['todos', 'manuales', 'computarizadas'];
+    if (!PERMISOS_VALIDOS.includes(permisos_catalogo)) {
+      return res.status(400).json({ message: 'Valor de permiso no válido. Use: todos, manuales o computarizadas.' });
+    }
+
+    const { rows } = await pool.query(
+      'UPDATE employees SET permisos_catalogo = $1 WHERE id = $2 RETURNING id, full_name, permisos_catalogo',
+      [permisos_catalogo, id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Empleado no encontrado.' });
+    }
+
+    res.json({ message: 'Permisos actualizados correctamente.', empleado: rows[0] });
   } catch (error) {
     next(error);
   }

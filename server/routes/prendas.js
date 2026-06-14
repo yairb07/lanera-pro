@@ -42,22 +42,28 @@ router.post('/categorias', requireAuth, requireRole('admin'), async (req, res, n
 });
 
 // GET /api/prendas
-// Obtener todas las prendas con su nombre de categoría (con filtro de privacidad para empleados)
+// Obtener prendas. Admin ve todo. Empleados filtran según su permiso personal.
 router.get('/', requireAuth, async (req, res, next) => {
   try {
-    const userRole = req.user.role;
+    const { role, employee_id } = req.user;
     let filterQuery = '';
 
-    if (userRole === 'employee') {
-      const configRes = await pool.query("SELECT valor FROM ajustes WHERE clave = 'visibilidad_empleados'");
-      const visibilidad = configRes.rows[0]?.valor || 'todos';
+    if (role === 'employee' && employee_id) {
+      // Leer permiso individual del empleado
+      const empRes = await pool.query(
+        'SELECT permisos_catalogo FROM employees WHERE id = $1',
+        [employee_id]
+      );
+      const permiso = empRes.rows[0]?.permisos_catalogo || 'todos';
 
-      if (visibilidad === 'manuales') {
+      if (permiso === 'manuales') {
         filterQuery = "WHERE p.machine_type = 'manual'";
-      } else if (visibilidad === 'computarizadas') {
+      } else if (permiso === 'computarizadas') {
         filterQuery = "WHERE p.machine_type = 'computarizada'";
       }
+      // 'todos' = sin filtro
     }
+    // Admin: filterQuery queda vacío, ve todo
 
     const { rows } = await pool.query(`
       SELECT p.*, c.name as category_name

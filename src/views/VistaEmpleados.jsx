@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { api } from '../services/clienteApi';
 
 const VistaEmpleados = ({ usuario, empleados = [], setEmpleados, roles = [], setRoles }) => {
-  const [tipoModal, setTipoModal] = useState(null); // 'asignar', 'progreso', 'nuevo'
+  const [tipoModal, setTipoModal] = useState(null); // 'asignar', 'progreso', 'nuevo', 'permisos'
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(null);
   
   const [credencialesGeneradas, setCredencialesGeneradas] = useState(null);
@@ -12,6 +12,11 @@ const VistaEmpleados = ({ usuario, empleados = [], setEmpleados, roles = [], set
   const [nuevoEmpleado, setNuevoEmpleado] = useState({
     nombre: '', dni: '', rol: roles[0] || 'Tejedora', turno: 'Mañana', pago: 'destajo'
   });
+
+  // Estado para el panel de permisos
+  const [empleadoPermisos, setEmpleadoPermisos] = useState(null);
+  const [permisoSeleccionado, setPermisoSeleccionado] = useState('todos');
+  const [guardandoPermisos, setGuardandoPermisos] = useState(false);
 
   const rolUsuarioActual = usuario?.role || usuario?.rol;
 
@@ -116,6 +121,37 @@ const VistaEmpleados = ({ usuario, empleados = [], setEmpleados, roles = [], set
     setTipoModal(null);
   };
 
+  const abrirPermisos = (emp) => {
+    setEmpleadoPermisos(emp);
+    setPermisoSeleccionado(emp.permisosCatalogo || 'todos');
+    setTipoModal('permisos');
+  };
+
+  const manejarGuardarPermisos = async (e) => {
+    e.preventDefault();
+    if (!empleadoPermisos) return;
+    setGuardandoPermisos(true);
+    try {
+      await api.patch(`/api/empleados/${empleadoPermisos.id}/permisos`, {
+        permisos_catalogo: permisoSeleccionado
+      });
+      // Actualizar la lista local de empleados
+      if (setEmpleados) {
+        setEmpleados(empleados.map(e =>
+          e.id === empleadoPermisos.id
+            ? { ...e, permisosCatalogo: permisoSeleccionado }
+            : e
+        ));
+      }
+      setTipoModal(null);
+      setEmpleadoPermisos(null);
+    } catch (err) {
+      alert('Error al guardar permisos: ' + err.message);
+    } finally {
+      setGuardandoPermisos(false);
+    }
+  };
+
   return (
     <div className="animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
@@ -168,10 +204,28 @@ const VistaEmpleados = ({ usuario, empleados = [], setEmpleados, roles = [], set
               </div>
             </div>
 
-            <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem' }}>
-              <button className="btn-primary" onClick={() => manejarAsignacion(emp)} style={{ flex: 1, fontSize: '0.75rem', padding: '0.6rem' }}>Asignar Tarea</button>
-              <button className="btn-primary" onClick={() => manejarProgreso(emp)} style={{ flex: 1, fontSize: '0.75rem', padding: '0.6rem', background: 'rgba(255,255,255,0.1)' }}>Ver Avances</button>
+            <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button className="btn-primary" onClick={() => manejarAsignacion(emp)} style={{ flex: 1, minWidth: '90px', fontSize: '0.75rem', padding: '0.6rem' }}>Asignar Tarea</button>
+              <button className="btn-primary" onClick={() => manejarProgreso(emp)} style={{ flex: 1, minWidth: '90px', fontSize: '0.75rem', padding: '0.6rem', background: 'rgba(255,255,255,0.1)' }}>Ver Avances</button>
+              {rolUsuarioActual === 'admin' && (
+                <button
+                  onClick={() => abrirPermisos(emp)}
+                  style={{
+                    flex: 1, minWidth: '90px', fontSize: '0.75rem', padding: '0.6rem',
+                    border: '1px solid var(--accent)', borderRadius: '8px',
+                    background: 'transparent', color: 'var(--accent)',
+                    cursor: 'pointer', fontWeight: '600'
+                  }}
+                >
+                  🔒 Permisos
+                </button>
+              )}
             </div>
+            {rolUsuarioActual === 'admin' && emp.permisosCatalogo && emp.permisosCatalogo !== 'todos' && (
+              <div style={{ marginTop: '0.6rem', fontSize: '0.72rem', color: '#f39c12', fontWeight: '600', textAlign: 'right' }}>
+                🔒 Solo ve: {emp.permisosCatalogo === 'manuales' ? 'Manuales' : 'Computarizadas'}
+              </div>
+            )}
           </div>
         ))}
       </div>

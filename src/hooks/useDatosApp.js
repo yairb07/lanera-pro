@@ -30,7 +30,8 @@ export const useDatosApp = () => {
           monto: Number(e.base_amount),
           estado: e.status === 'active' ? 'activo' : 'inactivo',
           prendas: e.total_prendas || 0,
-          tareas: e.active_tasks || 0
+          tareas: e.active_tasks || 0,
+          permisosCatalogo: e.permisos_catalogo || 'todos'
         }));
 
         // Mapeo de Conos
